@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Dashboard</title>
+</head>
+<body>
+    <h1>Account Dashboard</h1>
+    <div id="app">
+        <button @click="selected_account = 'paper'">paper</button>
+        <button @click="selected_account = 'live'">live</button>
+        <button @click="load_accounts()">load accounts</button>
+        <p>{{load_message}}</p>
+        <div v-if ="selected_account === 'paper'">
+        <p>{{paper_account.name}}</p>
+        <p>demo net value : {{paper_account.netvalue}} {{paper_account.currency}}</p>
+        <ul>
+            <li v-for="position in paper_account.holding">
+                {{position.symbol}}-{{position.quantity}}
+            </li>
+        </ul>
+        <button @click="paper_account.netvalue = '12000.00'">update demo value</button>
+        </div>
+        <div v-if ="selected_account === 'live'">
+        <p>{{live_account.name}}</p>
+        <p>demo net value : {{live_account.netvalue}} {{live_account.currency}}</p>
+        <ul>
+            <li v-for="position in live_account.holding">
+            {{position.symbol}}-{{position.quantity}}
+        </li>
+        </ul>
+        <button @click="live_account.netvalue = '12000.00'">update demo value</button>
+        </div>
+        
+    </div>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+        const app = Vue.createApp({
+            data(){
+                return{
+                    load_message:"",
+                    selected_account : 'paper',
+                    paper_account :{
+                    name :'paper account',
+                    netvalue : '10000.00',
+                    currency : 'usd',
+                    holding : [
+                        {symbol : 'TSM', quantity : '2'},
+                        {symbol : "GOOGL", quantity : '3'}
+                    ]
+                            },
+                    live_account :{
+                        name : 'live account',
+                        netvalue : '10000.00',
+                        currency : 'usd',
+                        holding :[
+                            {symbol : 'Avgo', quantity: '2'},
+                            {symbol: 'GOOGL', quantity: '3'}
+                        ]
+                    }
+
+                }
+            },
+
+
+            methods:{
+                async load_accounts(){
+                    const response = await fetch('/accounts')
+                    if (response.ok ===false){
+                        this.load_message = 'load failed'
+                        return
+                    }
+                    const accounts = await response.json()
+                    if (accounts.length === 0){
+                        this.load_message = 'no accounts returned'
+                        return
+                    }
+                   for (const account of accounts){
+                    if (account.account_type ==='paper'){
+                        this.paper_account = account
+                    }
+                    if (account.account_type ==='live'){
+                        this.live_account = account
+                    }   
+                    }
+                    this.load_message = 'accounts loaded'
+
+
+        }}})
+        
+        app.mount('#app')
+    </script>
+</body>
+</html>
+
