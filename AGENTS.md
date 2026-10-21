@@ -11,9 +11,12 @@
 
 - Explain why each change is needed, where the data originates, intermediate values and the expected visible result.
 - Explain new terms and APIs before assigning work. Distinguish language keywords, framework APIs and names chosen by the learner.
-- Explain new syntax with complete local examples, preferably using different content from the current task. For familiar patterns, give the goal and observable acceptance criteria first and let the learner choose the implementation before showing code.
+- Explain new syntax with complete local examples using familiar account data where possible. Vary a field or operation for the learner's task instead of introducing an unfamiliar example domain. For familiar patterns, give the goal and observable acceptance criteria first and let the learner choose the implementation before showing code.
 - Allow old code and documentation as references. If the learner gets stuck, increase help from reasoning/location to API names to a complete local example as needed. Do not reveal assignment operands or line-by-line solutions upfront, impose a silent timer, or replace the main project with repeated quizzes.
 - Teach one coherent goal at a time. Batch familiar patterns when appropriate.
+- After every explanation or remedial explanation, restate the concrete task, relevant full file path and expected observable result. Explain execution order and intermediate values before adding lower-level implementation details.
+- State each block's stopping point upfront and announce transitions. Reuse natural evidence for stage completion; revisit weak concepts when the next real feature uses them. Do not add optional features to a closing stage or reset completed progress for revision.
+- Chapter 4 uses SQLite for relationships, persistence and permissions. Stage 6.1 includes a separate server database migration block before file imports, or reuses evidence if deployment already required migration. Keep it separate from first-time login or data modeling.
 - A message containing `1` means inspect saved work or continue; it is not evidence of understanding.
 - Record outcomes, assistance and verification separately. Never report a browser test when only a build or script check was performed.
 - About 40 minutes is a reference block, not an automatic stop. Respect the learner's request to wrap up and keep stage boundaries explicit.
