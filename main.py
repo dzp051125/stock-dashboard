@@ -12,6 +12,11 @@ def read_index():
 @app.get("/accounts/paper")
 def read_paper_account():
     return{"account_type": "paper",
+           "account_id": "demo_paper",
+           "base_currency": "usd",
+           "source": "demo",
+           "as_of": "2026-10-20T20:00:00+08:00",
+           "received_at": "2026-10-20T20:01:00+08:00",
            "name": "paper_account",
            "netvalue": "15000.00",
            "currency": "usd",          
@@ -23,6 +28,11 @@ def read_paper_account():
 def read_live_account():
     paper_account = read_paper_account()
     live_account={"account_type": "live",
+           "account_id": "demo_live",
+           "base_currency": "usd",
+           "source": "demo",
+           "as_of": "2026-10-20T20:00:00+08:00",
+           "received_at": "2026-10-20T20:01:00+08:00",
            "name": "live_account",
            "netvalue": "14000.00",
            "currency": "usd",          

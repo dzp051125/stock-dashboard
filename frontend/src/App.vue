@@ -1,4 +1,5 @@
 <template>
+  <button @click="load_accounts()">load_accounts</button>
   <AccountSelector  @select-paper="select_account = 'paper'"
                     @select-live="select_account = 'live'"></AccountSelector>
   <div v-if="select_account ==='paper'">
@@ -30,6 +31,33 @@ components :{
   AccountSelector: AccountSelector,
   HoldingsList: HoldingsList,
   StatusMessage: StatusMessage
+},
+methods:{
+  async load_accounts(){
+    this.status_message = 'loading demo accounts'
+    try{const response = await fetch('/accounts')
+    if (response.ok===false){
+      this.status_message='response fail'
+      return
+    }
+    const accounts = await response.json()
+    if (accounts.length===0){
+      this.status_message= 'No accounts returned. Previous demo data retained.'
+      return
+    }
+    if (accounts.length===1){
+      this.status_message= 'some data was broken.'
+      return
+
+    }
+    this.paper_account = accounts[0]
+    this.live_account = accounts[1]
+    this.status_message = 'demo data loaded, no broker connection'
+    }
+    catch{this.status_message= 'load failed'}
+  }
+
+
 },
 
 data(){

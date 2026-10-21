@@ -2,23 +2,26 @@
 
 > 2026-10-21 教师整理：这是代码对照笔记，不是学生独立解释的证据，也不参与程序运行。
 
-## Current stage 3.4: frontend component flow
+## Current stage 3.5: request and component flow
 
 - Current page: http://127.0.0.1:5173/, served by the Vite development server.
 - Entry: frontend/index.html -> frontend/src/main.js -> frontend/src/App.vue.
-- Data: App.vue 的 data() 返回两个演示账户和 select_account；当前前端不请求 Python、数据库或券商。
+- Initial data: App.vue的data()返回两个内置演示账户和select_account。点击加载后才请求Python；没有数据库或券商连接。
+- Request: App.vue button -> load_accounts() -> fetch('/accounts') -> Vite :5173 proxy -> FastAPI :8001/accounts -> main.py read_live_account() -> two account dictionaries -> JSON array.
+- Reply: response.ok checks HTTP success; response.json() returns accounts; length 0/1 is rejected with a notice and return; positions 0/1 update paper_account/live_account. Current contract is exactly the two known demo accounts in that order, not a general broker payload validator.
+- State: before waiting, status_message becomes loading; success updates both accounts then the success message. HTTP failure returns early without reading JSON; network/JSON exceptions enter catch. Empty/incomplete replies and failures preserve prior account objects.
 - Selection: AccountSelector button -> $emit('select-paper' / 'select-live') -> App.vue @ listener -> select_account -> v-if shows the matching account group.
 - Header: matching account.name -> DashboardHeader heading prop -> h1.
 - Overview: matching account object -> AccountSummary account prop -> three p elements.
 - Rename: AccountSummary button -> $emit('rename') -> matching App.vue listener changes that account.name -> header and overview update.
 - Holdings: matching account.holding array -> HoldingsList positions prop -> v-for takes one position object per li -> position.symbol / position.quantity.
 - Status: App.vue status_message -> StatusMessage message prop -> p. This component is outside both account conditions, so the demo notice stays visible for either account.
-- Metadata material: account_id is a fictional stable ID, account_type is paper/live, source is demo, as_of is the fictional snapshot time, received_at is the fictional receipt time, and base_currency is usd. These are teacher-prepared fixtures; neither timestamp represents a live broker update or page refresh.
-- Stage 3.5: reconnect the backend and reconcile fields, then integrate loading/network/empty/error states.
+- Metadata material: account_id is a fictional stable ID, account_type is paper/live, source is demo, as_of is the fictional snapshot time, received_at is the fictional receipt time, and base_currency is usd. These are teacher-prepared fixtures, now present in both initial frontend objects and backend replies; neither timestamp represents a live broker update or page refresh.
+- Verification: actual saved loading method + real Vite/FastAPI success, controlled waiting/network/JSON/HTTP/empty/incomplete cases, compiler and build. Learner reported account switching, rename retention and narrow-window use normal; teacher did not claim an actual browser click.
 
 ## Prior stage 3.3: backend flow retained for comparison
 
-The following records the previous root index.html/main.py version; it does not describe the new frontend's current network behavior.
+The following records the previous root index.html page flow. main.py now also serves the current frontend; the new frontend uses the proxy route above.
 
 > 2026-10-20 教师示范：按当前保存的代码整理，供对照理解；不是学生独立填写的证据。本文件是学习笔记，不参与程序运行。
 
@@ -33,7 +36,7 @@ The following records the previous root index.html/main.py version; it does not 
 - Page action: 点击 load accounts 按钮，调用 index.html 中 methods 内的 load_accounts()。
 - Request URL: GET http://127.0.0.1:8001/accounts，由 fetch('/accounts') 发出。
 - Backend function: main.py 中实际名为 read_live_account() 的函数；它注册在 @app.get('/accounts') 下，返回两份账户字典组成的列表。
-- Response example: 当前演示 JSON 如下。Python 列表转换为 JSON 数组，浏览器用 await response.json() 解析为 JavaScript 数组 accounts。
+- Response example: 以下为3.3时的历史演示JSON；3.5已增加标识、来源和时间字段。Python列表转换为JSON数组，浏览器用await response.json()解析为JavaScript数组accounts。
 
 ```json
 [
