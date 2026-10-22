@@ -4,7 +4,8 @@
 
 - The current Vue application is in `frontend/`; root `main.py` serves its demo backend on port 8001 via the Vite development proxy. Root `index.html` is the prior reference page.
 - Read `learning/STATUS.md` before teaching. Use `learning/PLAN.md` for the route and the latest daily report for recent evidence.
-- The learner has requested a staged curriculum reconstruction. Read `learning/REBUILD_BRIEF.md` for the requirements and evidence baseline. The previous stack, chapter numbering and order are choices to review, not fixed user requirements. Preserve implementation progress and distinguish proposals from agreed decisions while the reconstruction is underway.
+- The v2 curriculum integrates the learner's requirements and external reviews. Read `learning/REBUILD_BRIEF.md`, `learning/REBUILD_DECISIONS.md` and the current seven-chapter `learning/PLAN.md`; detailed teaching rules are in `learning/TEACHING_RULES.md`. Preserve existing implementation evidence rather than restarting the completed demo chain.
+- The learner has directly confirmed AI application full-stack as the priority, preparation for internship applications around October 2027, planned study of roughly ten-plus hours weekly and a public fictional demo alongside an isolated private version. These are planning inputs, not guarantees of focused time, internship eligibility or an offer; no deployment has occurred.
 - Application identifiers, comments and UI strings are English. Teaching and learning documents may be Chinese.
 - Use fictional data. Keep credentials, real account exports, databases, backups and dependencies out of Git.
 
@@ -19,7 +20,8 @@
 - Teach one coherent goal at a time. Batch edits that use the same familiar pattern, such as displaying account_id and as_of, into one assignment and one check. Explain their meanings first; split work for genuinely new mechanisms rather than each field or line.
 - After every explanation or remedial explanation, restate the concrete task, relevant full file path and expected observable result. Explain execution order and intermediate values before adding lower-level implementation details.
 - State each block's stopping point upfront and announce transitions. Reuse natural evidence for stage completion; revisit weak concepts when the next real feature uses them. Do not add optional features to a closing stage or reset completed progress for revision.
-- Chapter 4 uses SQLite for relationships, persistence and permissions. Stage 6.1 includes a separate server database migration block before file imports, or reuses evidence if deployment already required migration. Keep it separate from first-time login or data modeling.
+- The current implementation target is SQLite through the existing FastAPI response into the existing Vue page. Keep the current Vue style working; teach TypeScript and a small Composition API comparison separately when their prerequisites are clear. Do not rewrite the whole frontend for style changes.
+- Add essential isolated tests and logs when data writes, permissions or model failure paths first appear. Deployment and actual backup restoration are required delivery capabilities; specific server database and tooling choices depend on purpose and cost.
 - A message containing `1` means inspect saved work or continue; it is not evidence of understanding.
 - Record outcomes, assistance and verification separately. Never report a browser test when only a build or script check was performed.
 - About 40 minutes is a reference block, not an automatic stop. Respect the learner's request to wrap up and keep stage boundaries explicit.

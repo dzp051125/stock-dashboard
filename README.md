@@ -4,9 +4,11 @@
 
 ## 学习监督入口
 
-- [总计划](learning/PLAN.md)：九章路线和完成标准。
+- [总计划](learning/PLAN.md)：v2七章路线、28阶段和完成标准，复用已有成果。
+- [教学规则](learning/TEACHING_RULES.md)：整体骨架、讲解/练习方式和帮助记录。
+- [评审整合](learning/REBUILD_DECISIONS.md)：Grok与Claude建议的采用、修正和证据边界。
 - [当前状态与未来三次安排](learning/STATUS.md)：监督者优先读取的最新状态。
-- [本次学习记录](learning/daily/2026-10-21.md)：3.4与3.5的成果、卡点、帮助和验证证据。
+- [最新课堂与规划记录](learning/daily/2026-10-23.md)：旧4.1停点、架构讨论和v2整合；旧3.4/3.5证据保留在10月21日日报。
 - [数据流对照](REQUEST_FLOW.md)：新Vue组件流程与旧版后端流程。
 
 日常进度以 `learning/STATUS.md` 为准，历史日报保留当时状态。一次代码运行成功和独立掌握分别记录。
