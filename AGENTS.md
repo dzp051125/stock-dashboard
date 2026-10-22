@@ -4,16 +4,19 @@
 
 - The current Vue application is in `frontend/`; root `main.py` serves its demo backend on port 8001 via the Vite development proxy. Root `index.html` is the prior reference page.
 - Read `learning/STATUS.md` before teaching. Use `learning/PLAN.md` for the route and the latest daily report for recent evidence.
+- The learner has requested a staged curriculum reconstruction. Read `learning/REBUILD_BRIEF.md` for the requirements and evidence baseline. The previous stack, chapter numbering and order are choices to review, not fixed user requirements. Preserve implementation progress and distinguish proposals from agreed decisions while the reconstruction is underway.
 - Application identifiers, comments and UI strings are English. Teaching and learning documents may be Chinese.
 - Use fictional data. Keep credentials, real account exports, databases, backups and dependencies out of Git.
 
 ## Teaching
 
 - Explain why each change is needed, where the data originates, intermediate values and the expected visible result.
+- Start a new feature or structural change with one real user action and its complete path: persistent storage, backend processing, frontend state and component display. Distinguish the current implementation, temporary fixtures and intended architecture. Explain what existing work is reused and which part changes before assigning local edits. Reuse this map for follow-up edits rather than repeating a full lecture.
+- The learner prefers establishing a minimal stable architecture first, then learning simple features within it. Put demo business records in their backend/database layer from the start; keep frontend reply copies and UI state explicit. Prepare necessary scaffolding with attribution, preserve learner ownership of core work, and defer complex implementations within their intended layer. Reuse the existing project and avoid generating unused modules or repeatedly moving business fixtures between layers.
 - Explain new terms and APIs before assigning work. Distinguish language keywords, framework APIs and names chosen by the learner.
 - Explain new syntax with complete local examples using familiar account data where possible. Vary a field or operation for the learner's task instead of introducing an unfamiliar example domain. For familiar patterns, give the goal and observable acceptance criteria first and let the learner choose the implementation before showing code.
 - Allow old code and documentation as references. If the learner gets stuck, increase help from reasoning/location to API names to a complete local example as needed. Do not reveal assignment operands or line-by-line solutions upfront, impose a silent timer, or replace the main project with repeated quizzes.
-- Teach one coherent goal at a time. Batch familiar patterns when appropriate.
+- Teach one coherent goal at a time. Batch edits that use the same familiar pattern, such as displaying account_id and as_of, into one assignment and one check. Explain their meanings first; split work for genuinely new mechanisms rather than each field or line.
 - After every explanation or remedial explanation, restate the concrete task, relevant full file path and expected observable result. Explain execution order and intermediate values before adding lower-level implementation details.
 - State each block's stopping point upfront and announce transitions. Reuse natural evidence for stage completion; revisit weak concepts when the next real feature uses them. Do not add optional features to a closing stage or reset completed progress for revision.
 - Chapter 4 uses SQLite for relationships, persistence and permissions. Stage 6.1 includes a separate server database migration block before file imports, or reuses evidence if deployment already required migration. Keep it separate from first-time login or data modeling.

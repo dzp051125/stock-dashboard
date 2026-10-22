@@ -40,3 +40,16 @@ def read_live_account():
             {"symbol": "GOOGL", "quantity": "3"}
            ]}
     return[paper_account, live_account]
+@app.get('/accounts/paper/snapshots')
+def read_paper_snapshots():
+    return[{
+        "account_id": "demo_paper",
+        "as_of": "2026-10-20T20:00:00+08:00",
+        "netvalue": "15000.00"
+    },
+    {
+        "account_id": "demo_paper",
+        "as_of": "2026-10-21T20:00:00+08:00",
+        "netvalue": "15200.00"
+    }
+    ]
