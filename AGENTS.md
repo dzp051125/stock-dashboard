@@ -11,7 +11,7 @@
 
 ## Teaching
 
-- Explain why each change is needed, where the data originates, intermediate values and the expected visible result.
+- Begin every teaching, remedial explanation or task transition with a brief anchor: the feature being built, why this step is needed, where its input comes from, which function/module consumes its output and the visible result. Use a short chain for ongoing work, the full map for a new feature. Distinguish terminal print, HTTP return and Vue display. Explain intermediate values against actual files; stage numbers are secondary.
 - Start a new feature or structural change with one real user action and its complete path: persistent storage, backend processing, frontend state and component display. Distinguish the current implementation, temporary fixtures and intended architecture. Explain what existing work is reused and which part changes before assigning local edits. Reuse this map for follow-up edits rather than repeating a full lecture.
 - The learner prefers establishing a minimal stable architecture first, then learning simple features within it. Put demo business records in their backend/database layer from the start; keep frontend reply copies and UI state explicit. Prepare necessary scaffolding with attribution, preserve learner ownership of core work, and defer complex implementations within their intended layer. Reuse the existing project and avoid generating unused modules or repeatedly moving business fixtures between layers.
 - Explain new terms and APIs before assigning work. Distinguish language keywords, framework APIs and names chosen by the learner.

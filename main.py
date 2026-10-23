@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
-
+import sqlite3
 app = FastAPI()
 
 
@@ -42,14 +42,14 @@ def read_live_account():
     return[paper_account, live_account]
 @app.get('/accounts/paper/snapshots')
 def read_paper_snapshots():
-    return[{
-        "account_id": "demo_paper",
-        "as_of": "2026-10-20T20:00:00+08:00",
-        "netvalue": "15000.00"
-    },
-    {
-        "account_id": "demo_paper",
-        "as_of": "2026-10-21T20:00:00+08:00",
-        "netvalue": "15200.00"
-    }
-    ]
+    connection = sqlite3.connect('data/dashboard.db')
+    query_result = connection.execute('SELECT account_id, as_of, netvalue FROM snapshots WHERE account_id=?',
+    ('demo_paper',))
+    rows = query_result.fetchall()
+    print(rows)
+    connection.close()
+    records = []
+    for row in rows:
+        record = {"account_id" : row[0],'as_of' : row[1], 'netvalue' : row[2]}
+        records.append(record)
+    return records
