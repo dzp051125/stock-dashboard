@@ -36,7 +36,7 @@
 - 总览目标：基本资料取`accounts`，时点与净值取该账户最新的`snapshots`记录，持仓取这份快照对应的`holdings`。这里模拟账户最新快照为编号2。
 - 历史接口`/accounts/paper/snapshots`保留多个时点，供以后查看净值变化；它不代替完整账户资料。当前Vue请求的是`/accounts`。
 
-## 完整模拟账户返回目标（尚未全部接库）
+## 当前完整模拟账户返回样例（已接库）
 
 ```json
 {
@@ -60,7 +60,27 @@
 
 `currency`目前沿用基础币种`base_currency`；这是当前演示的显示约定。响应中的`holding`是既有组件使用的键名，数据库表名是`holdings`，由后端明确转换。
 
-## 当前已经完成和接下来要做什么
+## 当前查询结果怎样对应下标
 
-学生已经把`accounts`的五项基本资料查出并正确对应到返回字典。当前`read_paper_account()`只有这五项；完整返回还需补上快照、币种显示和持仓，已有Vue需要这些字段。
-接下来围绕同一个完整目标：先选择模拟账户最新快照并接入时点/净值，再按该快照编号取得持仓；保留已写查询和既有接口/组件。每次引入新SQL语法前说明执行方式，熟悉字段由学生自己对应，不重写整站。
+数据库表的列顺序与查询结果的列顺序可以不同。row中的下标以这次SELECT写出的列顺序为准。
+
+当前快照查询是`SELECT snapshot_id, as_of, received_at, netvalue ...`，省略了表中的account_id列，因此返回：
+
+```python
+(2, "2026-10-21T20:00:00+08:00", "2026-10-21T20:01:00+08:00", "15200.00")
+```
+
+| 下标 | 这次查询中的列 |
+| --- | --- |
+| 0 | snapshot_id |
+| 1 | as_of |
+| 2 | received_at |
+| 3 | netvalue |
+
+## 当前已完成与下次接续
+
+2026-10-25收尾：read_account(account_id)已经用三张表组装完整账户，/accounts返回demo_paper和demo_live两账户及各自最新快照、基础币种和全部持仓。每轮新建字典后append；多条与空持仓已用内存数据库验证，真实演示表仍保持上方样本。独立/accounts/paper检查路由已删除，历史/accounts/paper/snapshots保留。
+
+持仓连接：最新快照snapshot_id=2 → holdings表的snapshot_id=2 → symbol/quantity → 独立字典列表 → 返回账户holding。编号1与2虽都持有TSM，仍按选定快照查询，不能把两天持仓合并成一次持仓。
+
+最后布置的可读性整理尚未实施：账户和最新快照仍fetchall后取[0]，下次可改为fetchone直接得到一行或None；持仓继续fetchall。当前函数正常运行，完整返回形状保持。

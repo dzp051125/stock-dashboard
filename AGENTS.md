@@ -2,7 +2,7 @@
 
 ## Project
 
-- The current Vue application is in `frontend/`; root `main.py` serves its demo backend on port 8001 via the Vite development proxy. Root `index.html` is the prior reference page.
+- The current Vue application is in `frontend/`; root `main.py` serves its demo backend on port 8001 via the Vite development proxy. The old root `index.html` and its backend homepage route have been removed; retain `frontend/index.html` as the Vue entry.
 - The complete final reading artifact is `learning/FINAL_PLAN.md`; source sections remain PLAN/TEACHING_RULES/STATUS. Read `learning/STATUS.md` before teaching. Use `learning/PLAN.md` for the route and the latest daily report for recent evidence.
 - The v2.2 curriculum integrates the learner's requirements and external reviews. Read `learning/REBUILD_BRIEF.md`, `learning/FINAL_REVIEW_DECISIONS.md` and the current seven-chapter `learning/PLAN.md`; detailed teaching rules are in `learning/TEACHING_RULES.md`. The latest teaching review decisions are `learning/TEACHING_REVIEW_DECISIONS_2026-10-24.md`; start from `ARCHITECTURE.md` for the whole-product map. Preserve existing implementation evidence rather than restarting the completed demo chain.
 - The learner has directly confirmed AI application full-stack as the priority, preparation for internship applications around October 2027, planned study of roughly ten-plus hours weekly and a public fictional demo alongside an isolated private version. These are planning inputs, not guarantees of focused time, internship eligibility or an offer; no deployment has occurred.
@@ -10,6 +10,12 @@
 - Use fictional data. Keep credentials, real account exports, databases, backups and dependencies out of Git.
 
 ## Teaching
+
+- Review learner-written code for correctness, clarity, duplication and actual performance costs, even when it runs. Explain concrete benefits and ask the learner to fix meaningful issues in the current feature. Use relevant data cases to expose defects; avoid speculative optimization or unrelated style rewrites. Preserve learner ownership of implementation.
+
+- The learner corrected assistant takeover: a request to avoid detours does not authorize silently completing all subsequent learning work. Earlier 1.3 implementation included substantial assistant work. The learner subsequently resumed hands-on changes to account mapping, shared display and complete holdings. Follow STATUS for the exact stop; preserve learner participation and distinguish guided work from independent ability. Do not report site outcome percentages as mastery; provide scoped direct edits when requested.
+
+- The learner clarified that building the website is primary and teaching happens within real development. Choose the simplest clear implementation for the site; do not preserve extra routes, create exercises or add steps solely for teaching. Direct coding help is authorized when requested; explain key changes briefly and distinguish assistant work from learner work. Current 1.3 delivery is verified, with substantial assistant contribution; 1.4 has not started.
 
 - For current 1.3, use sequential table queries, then parameterize account assembly for both accounts. Check absent rows before indexing, close the connection after required queries, verify the response before clearing frontend fixtures and guard unloaded templates. Keep v2.2 through the initial trial/1.4 by default; honor new user direction or concrete blockers. Daily records are short; full summaries are stage-based and each wrap-up uses one reviewed commit. The latest detailed decisions include early dependency owners and checks.
 

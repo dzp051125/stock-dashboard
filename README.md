@@ -13,18 +13,18 @@
 - [教学规则](learning/TEACHING_RULES.md)：整体骨架、讲解/练习方式和帮助记录。
 - [三轮评审整合](learning/FINAL_REVIEW_DECISIONS.md)：Grok、Claude、Gemini建议的采用、修正和证据边界。
 - [当前状态与未来三次安排](learning/STATUS.md)：监督者优先读取的最新状态。
-- [最新课堂与规划记录](learning/daily/2026-10-24.md)：跨午夜查询学习与v2.2教学模式整改；早期证据保留在对应日报。
+- [最新课堂记录](learning/daily/2026-10-25.md)：主链路接库、账户显示整理与全部持仓；前一日起点及早期证据保留在对应日报。
 - [数据流对照](REQUEST_FLOW.md)：新Vue组件流程与旧版后端流程。
 
 日常进度以 `learning/STATUS.md` 为准，历史日报保留当时状态。一次代码运行成功和独立掌握分别记录。
 
 ## 当前可运行内容
 
-`frontend/` 是当前Vue/Vite项目：两个演示账户、账户切换、概览、持仓、组件事件和全局提示。App.vue先显示内置演示数据；点击加载按钮后，请求/accounts，经Vite开发代理转交给8001端口的FastAPI后端，再更新两个账户。
+`frontend/` 是当前Vue/Vite项目：两个演示账户、账户切换、概览、持仓、组件事件和全局提示。App.vue初始无账户数据并有显示保护；页面打开后自动请求/accounts，经Vite代理转给8001的FastAPI，从SQLite读取两个账户后更新组件。按钮可重新加载。
 
-根目录 `main.py` 是当前演示数据后端；`/accounts/paper/snapshots`已从SQLite读取，首页使用的`/accounts`仍待接库。根目录 `index.html` 保留上一阶段参考页面。前后端账户字段已核对；内置与后端的演示持仓故意不同，方便观察加载是否生效。
+根目录 `main.py` 是当前演示数据后端；`/accounts/paper/snapshots`读取历史快照，首页`/accounts`通过read_account(account_id)读取两账户及各自最新快照与全部持仓。根目录旧index.html及其后端首页路由已删除，保留frontend/index.html。前端不再维护初始资产样本，按account_type识别账户，并用computed.current_account驱动一套展示组件；旧内存改名功能已移除。
 
-已处理加载中、网络/读取异常、HTTP失败、空数组及单账户不完整回复。失败或不完整回复保留上次数据；当前接口约定按模拟盘、实盘顺序返回两个演示账户，尚未接入外部数据结构校验。
+已处理加载中、网络/读取异常、HTTP失败、非数组、空数组及单项回复。上述分支保留上次数据；前端不依赖两账户返回顺序。尚未检查所有异常账户组合（例如两项均paper），并未完成外部数据结构校验。
 
 本项目展示和分析账户资料，交易执行在网站之外。当前没有真实券商连接、真实持仓或交易操作。
 
@@ -69,7 +69,7 @@ python -m pip install -r requirements.txt
 python -m fastapi dev main.py --host 127.0.0.1 --port 8001
 ```
 
-后端运行期间保持终端开启。账户接口：http://127.0.0.1:8001/accounts ；通过开发代理也可访问 http://127.0.0.1:5173/accounts 。根目录旧参考首页仍可通过 http://127.0.0.1:8001/ 查看。新前端的加载按钮需要后端运行；实际看板入口为5173。
+后端运行期间保持终端开启。账户接口：http://127.0.0.1:8001/accounts ；通过开发代理也可访问 http://127.0.0.1:5173/accounts 。8001根首页返回404符合已删除旧页面入口的设计；实际看板入口为5173，其自动加载和加载按钮都需要后端运行。
 
 ## 同步约定
 
