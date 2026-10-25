@@ -34,7 +34,7 @@
 - `account_id`：账户编号，用它把账户基本资料与多天快照对应起来。`demo_paper`的两份快照都属于同一个账户。
 - `snapshot_id`：某一份快照的编号，用它找到那个时点的持仓。它与账户编号作用不同。
 - 总览目标：基本资料取`accounts`，时点与净值取该账户最新的`snapshots`记录，持仓取这份快照对应的`holdings`。这里模拟账户最新快照为编号2。
-- 历史接口`/accounts/paper/snapshots`保留多个时点，供以后查看净值变化；它不代替完整账户资料。当前Vue请求的是`/accounts`。
+- 历史接口`/accounts/{account_id}/snapshots`按账户保留多个时点，供以后查看净值变化；它不代替完整账户资料。当前Vue请求的是`/accounts`。
 
 ## 当前完整模拟账户返回样例（已接库）
 
@@ -79,8 +79,13 @@
 
 ## 当前已完成与下次接续
 
-2026-10-25收尾：read_account(account_id)已经用三张表组装完整账户，/accounts返回demo_paper和demo_live两账户及各自最新快照、基础币种和全部持仓。每轮新建字典后append；多条与空持仓已用内存数据库验证，真实演示表仍保持上方样本。独立/accounts/paper检查路由已删除，历史/accounts/paper/snapshots保留。
+2026-10-25收尾：read_account(account_id)已经用三张表组装完整账户，/accounts返回demo_paper和demo_live两账户及各自最新快照、基础币种和全部持仓。每轮新建字典后append；多条与空持仓已用内存数据库验证，真实演示表仍保持上方样本。独立/accounts/paper检查路由已删除；历史接口已于后续泛化为/accounts/{account_id}/snapshots。
 
 持仓连接：最新快照snapshot_id=2 → holdings表的snapshot_id=2 → symbol/quantity → 独立字典列表 → 返回账户holding。编号1与2虽都持有TSM，仍按选定快照查询，不能把两天持仓合并成一次持仓。
 
-最后布置的可读性整理尚未实施：账户和最新快照仍fetchall后取[0]，下次可改为fetchone直接得到一行或None；持仓继续fetchall。当前函数正常运行，完整返回形状保持。
+2026-10-25晚间已完成单条查询整理：账户和最新快照通过fetchone直接得到一行或None，持仓继续fetchall。持仓参数使用snapshot_row[0]，不能传snapshot_query查询对象；正常HTTP与两类404已验证，返回形状保持。
+
+
+## 通用历史接口（2026-10-26）
+
+SELECT account_id, as_of, netvalue FROM snapshots WHERE account_id = ? ORDER BY as_of ASC；参数为(account_id,)。每行映射下标0/1/2，组装成独立字典后加入列表。demo_paper两条15000.00/15200.00，demo_live一条14000.00，均由真实HTTP核对；无匹配返回[]。记录来源仍为演示种子，不冒称真实券商历史。

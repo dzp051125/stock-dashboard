@@ -11,11 +11,13 @@
 
 ## Teaching
 
+- Latest product ordering: chapter 1 functional outcomes have passed. After reviewing the product architecture, the learner continued with the first-version history feature before notes. Generic /accounts/{account_id}/snapshots is verified; AccountHistory.vue is not yet saved/created. Follow STATUS for the next task; preserve chapter outcomes and learner authorship.
+
 - Review learner-written code for correctness, clarity, duplication and actual performance costs, even when it runs. Explain concrete benefits and ask the learner to fix meaningful issues in the current feature. Use relevant data cases to expose defects; avoid speculative optimization or unrelated style rewrites. Preserve learner ownership of implementation.
 
 - The learner corrected assistant takeover: a request to avoid detours does not authorize silently completing all subsequent learning work. Earlier 1.3 implementation included substantial assistant work. The learner subsequently resumed hands-on changes to account mapping, shared display and complete holdings. Follow STATUS for the exact stop; preserve learner participation and distinguish guided work from independent ability. Do not report site outcome percentages as mastery; provide scoped direct edits when requested.
 
-- The learner clarified that building the website is primary and teaching happens within real development. Choose the simplest clear implementation for the site; do not preserve extra routes, create exercises or add steps solely for teaching. Direct coding help is authorized when requested; explain key changes briefly and distinguish assistant work from learner work. Current 1.3 delivery is verified, with substantial assistant contribution; 1.4 has not started.
+- The learner clarified that building the website is primary and teaching happens within real development. Choose the simplest clear implementation for the site; do not preserve extra routes, create exercises or add steps solely for teaching. Direct coding help is authorized when requested; explain key changes briefly and distinguish assistant work from learner work. Current delivery and assistance are recorded in STATUS; 1.3 has passed and 1.4 uses the real account source/time display requirement.
 
 - For current 1.3, use sequential table queries, then parameterize account assembly for both accounts. Check absent rows before indexing, close the connection after required queries, verify the response before clearing frontend fixtures and guard unloaded templates. Keep v2.2 through the initial trial/1.4 by default; honor new user direction or concrete blockers. Daily records are short; full summaries are stage-based and each wrap-up uses one reviewed commit. The latest detailed decisions include early dependency owners and checks.
 

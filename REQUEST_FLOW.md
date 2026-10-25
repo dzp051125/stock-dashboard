@@ -1,8 +1,23 @@
 # Request Flow
 
+## Current implementation: 2026-10-26
+
+- Entry: frontend/index.html -> frontend/src/main.js -> App.vue, served at 5173. Backend 8001 provides JSON; the old root HTML and FileResponse homepage have been removed.
+- Main request: mounted/button -> load_accounts -> fetch('/accounts') -> Vite proxy -> FastAPI read_live_account -> read_account for demo_paper/demo_live -> SQLite accounts/latest snapshots/all holdings -> dictionaries -> JSON array.
+- Reply: response.json -> account_type-based assignment -> paper_account/live_account -> computed.current_account -> one set of DashboardHeader/AccountSummary/HoldingsList. Initial objects are null and guarded; no duplicate frontend asset fixtures or rename demo remain.
+- Metadata: AccountSummary receives account and displays source/as_of/received_at from the reply. as_of describes the snapshot, received_at the stored receipt time; neither is a live broker update or page refresh time.
+- History backend: /accounts/{account_id}/snapshots -> read_snapshots(account_id) -> parameterized snapshots query ordered by as_of ASC -> one new dictionary per row -> JSON list. Actual demo_paper/demo_live responses have two/one records; no match currently returns[].
+- History frontend: AccountHistory.vue has not yet been created. The planned component receives account, requests its history, manages snapshots/history_message and displays records; App.vue integration and switching/late-response handling remain pending.
+- These are teacher-maintained notes. Learner/teacher contributions and verification boundaries are recorded in learning/STATUS.md and daily logs.
+
+## Historical notes below: superseded implementations
+
+The following preserves earlier stage records only. They do not describe the current application.
+
+
 > 2026-10-21 教师整理：这是代码对照笔记，不是学生独立解释的证据，也不参与程序运行。
 
-## Current stage 3.5: request and component flow
+## Historical stage 3.5: request and component flow
 
 - Current page: http://127.0.0.1:5173/, served by the Vite development server.
 - Entry: frontend/index.html -> frontend/src/main.js -> frontend/src/App.vue.

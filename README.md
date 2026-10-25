@@ -13,7 +13,7 @@
 - [教学规则](learning/TEACHING_RULES.md)：整体骨架、讲解/练习方式和帮助记录。
 - [三轮评审整合](learning/FINAL_REVIEW_DECISIONS.md)：Grok、Claude、Gemini建议的采用、修正和证据边界。
 - [当前状态与未来三次安排](learning/STATUS.md)：监督者优先读取的最新状态。
-- [最新课堂记录](learning/daily/2026-10-25.md)：主链路接库、账户显示整理与全部持仓；前一日起点及早期证据保留在对应日报。
+- [最新课堂记录](learning/daily/2026-10-26.md)：单条查询/来源时间显示与通用历史接口；前一日起点及早期证据保留在对应日报。
 - [数据流对照](REQUEST_FLOW.md)：新Vue组件流程与旧版后端流程。
 
 日常进度以 `learning/STATUS.md` 为准，历史日报保留当时状态。一次代码运行成功和独立掌握分别记录。
@@ -22,7 +22,7 @@
 
 `frontend/` 是当前Vue/Vite项目：两个演示账户、账户切换、概览、持仓、组件事件和全局提示。App.vue初始无账户数据并有显示保护；页面打开后自动请求/accounts，经Vite代理转给8001的FastAPI，从SQLite读取两个账户后更新组件。按钮可重新加载。
 
-根目录 `main.py` 是当前演示数据后端；`/accounts/paper/snapshots`读取历史快照，首页`/accounts`通过read_account(account_id)读取两账户及各自最新快照与全部持仓。根目录旧index.html及其后端首页路由已删除，保留frontend/index.html。前端不再维护初始资产样本，按account_type识别账户，并用computed.current_account驱动一套展示组件；旧内存改名功能已移除。
+根目录 `main.py` 是当前演示数据后端；`/accounts/{account_id}/snapshots`按账户编号读取升序历史快照，首页`/accounts`通过read_account(account_id)读取两账户及各自最新快照与全部持仓。根目录旧index.html及其后端首页路由已删除，保留frontend/index.html。前端不再维护初始资产样本，按account_type识别账户，并用computed.current_account驱动一套展示组件；旧内存改名功能已移除。概览已显示来源、估值与接收时点；前端历史组件尚未创建或接入。
 
 已处理加载中、网络/读取异常、HTTP失败、非数组、空数组及单项回复。上述分支保留上次数据；前端不依赖两账户返回顺序。尚未检查所有异常账户组合（例如两项均paper），并未完成外部数据结构校验。
 
@@ -58,7 +58,7 @@ pnpm dev
 .\.venv\Scripts\python.exe scripts/prepare_demo_database.py
 ```
 
-快照接口：http://127.0.0.1:8001/accounts/paper/snapshots 。首页账户接口和此历史快照接口分别接入，不能因快照已接库就认定首页已完成。
+历史接口：[模拟盘](http://127.0.0.1:8001/accounts/demo_paper/snapshots)、[实盘](http://127.0.0.1:8001/accounts/demo_live/snapshots)。当前分别返回两条、一条升序历史；无匹配返回[]。主账户与历史后端均已接库，历史页面仍待实现。
 
 ## 启动后端
 
