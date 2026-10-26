@@ -1,6 +1,9 @@
 from fastapi import FastAPI, HTTPException
 import sqlite3
+from pydantic import BaseModel
 app = FastAPI()
+class NoteCreate(BaseModel):
+    content: str
 
 
 
@@ -61,3 +64,17 @@ def read_live_account():
     paper_account = read_account('demo_paper')
     live_account = read_account('demo_live')
     return [paper_account, live_account]
+
+@app.post('/accounts/{account_id}/notes')
+def create_notes(account_id: str,note: NoteCreate):
+    connection = sqlite3.connect('data/dashboard.db')
+    try:
+        connection.execute('PRAGMA foreign_keys= ON')
+        insert_result= connection.execute(
+        "INSERT INTO notes(account_id, content, created_at) VALUES(?, ?, ?)",
+        (account_id, content, created_at)
+    )
+        connection.commit()
+        note_id = insert_result.lastrowid
+    finally: connection.close()
+    return note_id

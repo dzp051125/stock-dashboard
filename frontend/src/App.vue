@@ -8,6 +8,8 @@
                   >
   </AccountSummary>
   <HoldingsList :positions="current_account.holding"></HoldingsList>
+  <AccountHistory :account ='current_account'
+                  :key=" current_account.account_id"></AccountHistory>
   </div>
 
   <p v-if="!paper_account && !live_account">No account data loaded.</p>
@@ -19,13 +21,15 @@ import AccountSummary from './account summary.vue';
 import AccountSelector from './AccountSelector.vue';
 import HoldingsList from './HoldingsList.vue';
 import StatusMessage from './StatusMessage.vue';
+import AccountHistory from './AccountHistory.vue';
 export default{
 components :{
   DashboardHeader: DashboardHeader,
   AccountSummary:AccountSummary,
   AccountSelector: AccountSelector,
   HoldingsList: HoldingsList,
-  StatusMessage: StatusMessage
+  StatusMessage: StatusMessage,
+  AccountHistory: AccountHistory
 },
 mounted(){
   this.load_accounts()
@@ -68,7 +72,7 @@ methods:{
     this.status_message = 'demo data loaded, no broker connection'
     }
     catch{this.status_message= 'load failed'}
-  }
+  },
 
 
 },
@@ -80,6 +84,7 @@ data(){
     paper_account: null,
     live_account: null
   }
+
 }
 
 
@@ -94,9 +99,3 @@ data(){
 
 
 </script>
-
-
-
-
-
-

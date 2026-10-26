@@ -4,7 +4,7 @@
 
 数据库：`C:/Users/dzp11/stock-dashboard/data/dashboard.db`。
 
-## 三张表里实际有什么
+## 原三张演示表里实际有什么
 
 ### accounts：账户基本资料
 
@@ -89,3 +89,16 @@
 ## 通用历史接口（2026-10-26）
 
 SELECT account_id, as_of, netvalue FROM snapshots WHERE account_id = ? ORDER BY as_of ASC；参数为(account_id,)。每行映射下标0/1/2，组装成独立字典后加入列表。demo_paper两条15000.00/15200.00，demo_live一条14000.00，均由真实HTTP核对；无匹配返回[]。记录来源仍为演示种子，不冒称真实券商历史。
+
+## notes备注表（2026-10-27核对）
+
+学生写scripts/creat_notes.sql，教师在本地备份后执行；notes实际为0行。原三表演示数据保留。
+
+| 列 | 类型及约束 | 用途 |
+| --- | --- | --- |
+| id | INTEGER PRIMARY KEY | 保存时自动分配备注编号 |
+| account_id | TEXT NOT NULL REFERENCES accounts(account_id) | 所属账户，可多条备注属于同一账户 |
+| content | TEXT NOT NULL | 备注正文；非空白校验仍需后端实现 |
+| created_at | TEXT NOT NULL | 后端生成的创建时刻字符串；当前路由尚未生成 |
+
+写连接已使用PRAGMA foreign_keys=ON。当前POST接入中引用未定义变量，不能成功保存；不要将此前低层函数隔离验证当作当前接口通过。全新环境创建表的步骤见README。
