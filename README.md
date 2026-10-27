@@ -13,7 +13,7 @@
 - [教学规则](learning/TEACHING_RULES.md)：整体骨架、讲解/练习方式和帮助记录。
 - [三轮评审整合](learning/FINAL_REVIEW_DECISIONS.md)：Grok、Claude、Gemini建议的采用、修正和证据边界。
 - [当前状态与未来三次安排](learning/STATUS.md)：监督者优先读取的最新状态。
-- [最新课堂记录](learning/daily/2026-10-27.md)：历史展示已通过，备注表与未完成POST停点；跨午夜起点和早期证据保留在对应日报。
+- [最新课堂记录](learning/daily/2026-10-28.md)：快照单条备注新增、修改、删除与隔离验证；跨午夜起点和早期证据保留在对应日报。
 - [数据流对照](REQUEST_FLOW.md)：新Vue组件流程与旧版后端流程。
 
 日常进度以 `learning/STATUS.md` 为准，历史日报保留当时状态。一次代码运行成功和独立掌握分别记录。
@@ -79,14 +79,8 @@ python -m fastapi dev main.py --host 127.0.0.1 --port 8001
 
 GitHub仓库：[dzp051125/stock-dashboard](https://github.com/dzp051125/stock-dashboard)，可见性为私有，使用main分支。上传结果以仓库实际提交历史为准。
 
-## 备注功能：开发中停点（2026-10-27）
+## 快照备注
 
-当前保存的是学习WIP：notes表与NoteCreate已建好，POST /accounts/{account_id}/notes尚引用未定义content/created_at，暂不能成功提交。主账户/历史读取功能保留；没有备注读回接口或网页表单。精确恢复任务见learning/STATUS.md，不将Python可导入视作写接口可用。
+历史列表按快照显示一条备注，支持添加、编辑和删除。PUT/DELETE 按账户和快照更新 `snapshots.note`；写入成功后重新获取历史。空内容与错误账户/快照由后端拒绝，失败时保留草稿。使用临时数据库的真实网页端到端测试已通过；当前本机演示快照的note均为空。
 
-准备全新演示库时，先运行上面的prepare_demo_database.py，然后仅在notes表尚不存在时，从项目根目录执行学生写的DDL一次：
-
-```powershell
-.\.venv\Scripts\python.exe -c "import sqlite3; from pathlib import Path; c=sqlite3.connect('data/dashboard.db'); c.execute(Path('scripts/creat_notes.sql').read_text(encoding='utf-8-sig')); c.commit(); c.close()"
-```
-
-已有notes表的本机不重复执行DDL，不删除数据库。当前种子脚本不自动创建notes表。数据库与本地备份仍由Git排除。
+旧 `notes` 表和旧接口暂时保留，含两条未关联快照的演示备注；用户尚未决定其归属或删除。已有初始化脚本暂时创建旧表以兼容旧接口，后续整理时再处理。真实IBKR数据获取、登录和部署尚未实现。

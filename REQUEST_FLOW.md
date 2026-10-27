@@ -8,7 +8,7 @@
 - Metadata: AccountSummary receives account and displays source/as_of/received_at from the reply. as_of describes the snapshot, received_at the stored receipt time; neither is a live broker update or page refresh time.
 - History backend: /accounts/{account_id}/snapshots -> read_snapshots(account_id) -> parameterized snapshots query ordered by as_of ASC -> one new dictionary per row -> JSON list. Actual demo_paper/demo_live responses have two/one records; no match currently returns[].
 - History frontend: App.vue passes current_account and keys AccountHistory by account_id. Its mounted hook fetches history into its own snapshots/history_message; v-for displays as_of/netvalue/currency. Account switches remount it; switching and late-reply isolation passed script integration checks.
-- Notes WIP: notes table exists; POST /accounts/{account_id}/notes receives NoteCreate but still references undefined content/created_at at INSERT. Body extraction, server time and validation remain to be completed; no successful HTTP write/readback or form exists yet.
+- Snapshot notes: AccountHistory displays snapshot.note and maintains a separate draft. Save sends PUT /accounts/{account_id}/snapshots/{snapshot_id}/note with JSON content; FastAPI validates input and updates snapshots.note for that account and snapshot. Delete sends DELETE to the same path and sets note NULL; after success Vue reloads history. Browser-to-temporary-backend/SQLite integration and restart persistence passed. Legacy notes table and old endpoints remain pending cleanup.
 - These are teacher-maintained notes. Learner/teacher contributions and verification boundaries are recorded in learning/STATUS.md and daily logs.
 
 ## Historical notes below: superseded implementations

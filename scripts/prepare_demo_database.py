@@ -32,6 +32,7 @@ def prepare_demo_database():
                 as_of TEXT NOT NULL,
                 received_at TEXT NOT NULL,
                 netvalue TEXT NOT NULL,
+                note TEXT,
                 UNIQUE (account_id, as_of)
             );
 
@@ -41,6 +42,17 @@ def prepare_demo_database():
                 quantity TEXT NOT NULL,
                 PRIMARY KEY (snapshot_id, symbol)
             );
+
+            -- Temporary legacy table while notes move into snapshots.
+            CREATE TABLE notes (
+                id INTEGER PRIMARY KEY,
+                account_id TEXT NOT NULL REFERENCES accounts(account_id),
+                content TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                snapshot_id INTEGER REFERENCES snapshots(snapshot_id)
+            );
+
+            CREATE UNIQUE INDEX idx_notes_snapshot_id ON notes(snapshot_id);
         """)
         with connection:
             connection.executemany(
@@ -51,7 +63,7 @@ def prepare_demo_database():
                 ],
             )
             connection.executemany(
-                "INSERT INTO snapshots VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO snapshots (snapshot_id, account_id, as_of, received_at, netvalue) VALUES (?, ?, ?, ?, ?)",
                 [
                     (1, "demo_paper", "2026-10-20T20:00:00+08:00",
                      "2026-10-20T20:01:00+08:00", "15000.00"),

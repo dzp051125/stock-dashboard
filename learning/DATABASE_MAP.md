@@ -90,15 +90,12 @@
 
 SELECT account_id, as_of, netvalue FROM snapshots WHERE account_id = ? ORDER BY as_of ASC；参数为(account_id,)。每行映射下标0/1/2，组装成独立字典后加入列表。demo_paper两条15000.00/15200.00，demo_live一条14000.00，均由真实HTTP核对；无匹配返回[]。记录来源仍为演示种子，不冒称真实券商历史。
 
-## notes备注表（2026-10-27核对）
+## 旧notes备注表与新目标（2026-10-27）
 
-学生写scripts/creat_notes.sql，教师在本地备份后执行；notes实际为0行。原三表演示数据保留。
+当前实际notes列为id、account_id、content、created_at、snapshot_id，快照编号有唯一索引。两条review risk演示备注属于demo_paper，但snapshot_id均为NULL，不能推断具体快照。当前旧GET/POST可用。用户要求删除零散SQL文件；为了在新环境暂时维持旧接口，演示初始化脚本目前仍创建该表与索引。
 
-| 列 | 类型及约束 | 用途 |
-| --- | --- | --- |
-| id | INTEGER PRIMARY KEY | 保存时自动分配备注编号 |
-| account_id | TEXT NOT NULL REFERENCES accounts(account_id) | 所属账户，可多条备注属于同一账户 |
-| content | TEXT NOT NULL | 备注正文；非空白校验仍需后端实现 |
-| created_at | TEXT NOT NULL | 后端生成的创建时刻字符串；当前路由尚未生成 |
+用户决定将单条备注直接放进snapshots表，教师已备份并增加note列，三条现有快照的note均为NULL；初始化脚本同步更新。下一步调整接口和页面；旧表及两条未关联备注先保留，不自动分配、不直接删除。未来同步来源数据应避免覆盖用户备注。
 
-写连接已使用PRAGMA foreign_keys=ON。当前POST接入中引用未定义变量，不能成功保存；不要将此前低层函数隔离验证当作当前接口通过。全新环境创建表的步骤见README。
+## 单条快照备注已接通（2026-10-28）
+
+当前snapshots.note允许NULL；真实演示库三条均为空。历史GET返回snapshot_id和note；PUT按账户+快照更新正文并拒绝空白，DELETE清空note。页面显示一条备注和添加/修改/删除；隔离浏览器/数据库验证及服务重启持久化通过。旧notes表两条未关联记录与旧接口暂留，后续由用户决定数据处理。
