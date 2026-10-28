@@ -143,3 +143,43 @@ def delete_snapshot_note(account_id: str, snapshot_id: int):
         connection.close()
 
     return {'note': None}
+
+def save_snapshot(snapshot, holdings):
+    connection= sqlite3.connect('data/dashboard.db')
+    try:
+        connection.execute('PRAGMA foreign_keys= ON')
+        snapshot_query= connection.execute('SELECT snapshot_id, netvalue FROM snapshots WHERE account_id= ? and as_of=?',
+                                           (snapshot['account_id'], snapshot['as_of']))
+        snapshot_row= snapshot_query.fetchone()
+        if snapshot_row is not None:
+            if snapshot_row[1] != snapshot['netvalue']:
+                raise ValueError('snapshot netvalue conflicts with existing data')
+            holding_query= connection.execute('SELECT symbol, quantity FROM holdings WHERE snapshot_id= ?',
+                                              (snapshot_row[0],))
+            holding_rows= holding_query.fetchall()
+            existing_holdings= []
+            for holding_row in holding_rows:
+                existing_holdings.append({'symbol': holding_row[0],
+                                          'quantity': holding_row[1]})
+
+            if sorted(existing_holdings, key= lambda item:item['symbol']) != sorted( holdings, key= lambda item:item['symbol']):
+                raise ValueError('holdings conflicts with existing data')
+            return {'snapshot_id': snapshot_row[0],
+                    'status': 'existing'}
+
+
+        
+        save_query= connection.execute('INSERT INTO snapshots(account_id, as_of, received_at, netvalue)' \
+        'VALUES(?,?,?,?)',
+        (snapshot['account_id'], snapshot['as_of'], snapshot['received_at'], snapshot['netvalue']))
+        snapshot_id= save_query.lastrowid
+        for holding in holdings:
+            connection.execute('INSERT INTO holdings(snapshot_id, symbol, quantity)VALUES(?,?,?)',
+                               (snapshot_id, holding['symbol'], holding['quantity']))
+        connection.commit()
+            
+    finally:
+        connection.close()
+    return {'snapshot_id': snapshot_id,
+            'status': 'added success'}
+
