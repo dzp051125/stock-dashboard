@@ -5,11 +5,12 @@
   <div v-if="current_account">
   <DashboardHeader :heading="current_account.name"></DashboardHeader>
   <AccountSummary :account="current_account"
+                  :key='current_account.account_id'
                   >
   </AccountSummary>
-  <HoldingsList :positions="current_account.holding"></HoldingsList>
   <AccountHistory :account ='current_account'
                   :key=" current_account.account_id"></AccountHistory>
+  <HoldingsList :positions="current_account.holding"></HoldingsList>
   </div>
 
   <p v-if="!paper_account && !live_account">No account data loaded.</p>

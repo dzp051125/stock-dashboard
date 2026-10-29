@@ -2,12 +2,38 @@ from fastapi import FastAPI, HTTPException
 import sqlite3
 from pydantic import BaseModel
 from datetime import datetime,timezone
+from dotenv import load_dotenv
+from openai import OpenAI
+import os
+import json
+load_dotenv()
+deepseek_api_key= os.getenv('DEEPSEEK_API_KEY')
 app = FastAPI()
 class NoteCreate(BaseModel):
     content: str
-
-
-
+def generate_account_summary(accounts):
+    if not deepseek_api_key:
+        raise ValueError('deepseek_api_key is missing')
+    client=OpenAI(
+            api_key=deepseek_api_key,
+            base_url='https://api.deepseek.com',
+            timeout=30,
+            max_retries=0
+    )
+    account_data= json.dumps(accounts)
+    messages= [
+        {'role':'system',
+         'content': 'Summarize the supplied fictional account data in CHINESE.Use only provided facts. Mention the snapshot times and note if they differ'},
+        {'role': 'user',
+         'content': account_data}
+    ]
+    response= client.chat.completions.create(
+        model='deepseek-flash',
+        messages=messages,
+        max_tokens=1000,
+        extra_body={'thinking':{'type':'disabled'}}
+    )
+    return response.choices[0].message.content
 def read_account(account_id):
     connection = sqlite3.connect('data/dashboard.db')
     try:
@@ -67,6 +93,12 @@ def read_live_account():
     paper_account = read_account('demo_paper')
     live_account = read_account('demo_live')
     return [paper_account, live_account]
+@app.post('/accounts/{account_id}/account-summary')
+def create_account_summary(account_id:str):
+    accounts= read_account(account_id)
+    summary=generate_account_summary(accounts)
+    return{'summary':summary
+    }
 
 @app.post('/accounts/{account_id}/notes')
 def create_notes(account_id: str,note: NoteCreate):
