@@ -1,7 +1,10 @@
 <template>
 <ul>
     <li v-for="position in positions">
-        {{ position.symbol }} - {{ position.quantity }}
+        <div v-for="(value,field) in position":key='field'>
+            {{ field }}:{{ value }}
+        </div>
+        
     </li>
 </ul>
 </template>

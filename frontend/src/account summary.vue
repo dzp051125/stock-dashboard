@@ -1,17 +1,17 @@
 <template>
 <p>{{ account.account_id }}</p>
 <p>{{ account.name }}</p>
-<p>as  of: {{ account.as_of }}</p>
 <p>{{ account.netvalue }}</p>
-<p>{{ account.currency }}</p>
-<p>received at: {{ account.received_at }}</p>
+<p v-if="account.cash !=null">cash:{{ account.cash }}{{account.currency}}</p>
+<p>base currency:{{ account.currency }}</p>
 <p>source: {{ account.source }}</p>
-<p>ai-summary:{{summary}}</p>
+<p v-if="account.source !=='IBKR'">ai-summary:{{summary}}</p>
 </template>
 <script>
 export default{
 props:['account'],
-mounted(){this.read_summary()},
+mounted(){if(this.account.source !='IBKR'){
+    this.read_summary()}},
 
 data(){
     return{

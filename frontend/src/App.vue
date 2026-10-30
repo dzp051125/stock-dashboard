@@ -1,5 +1,5 @@
 <template>
-  <button @click="load_accounts()">load_accounts</button>
+  <button @click="load_paper()">refresh</button>
   <AccountSelector  @select-paper="select_account = 'paper'"
                     @select-live="select_account = 'live'"></AccountSelector>
   <div v-if="current_account">
@@ -8,7 +8,8 @@
                   :key='current_account.account_id'
                   >
   </AccountSummary>
-  <AccountHistory :account ='current_account'
+  <AccountHistory v-if="current_account.source!=='IBKR'"
+                  :account ='current_account'
                   :key=" current_account.account_id"></AccountHistory>
   <HoldingsList :positions="current_account.holding"></HoldingsList>
   </div>
@@ -33,7 +34,7 @@ components :{
   AccountHistory: AccountHistory
 },
 mounted(){
-  this.load_accounts()
+  this.load_paper()
 },
 computed :{
   current_account(){
@@ -44,36 +45,21 @@ computed :{
   }
 },
 methods:{
-  async load_accounts(){
-    this.status_message = 'loading demo accounts'
-    try{const response = await fetch('/accounts')
-    if (response.ok===false){
-      this.status_message='response fail'
-      return
+  
+  async load_paper(){
+    this.status_message = 'loading  paper account'
+    try{
+      const response= await fetch('/accounts/paper')
+      if(response.ok===false){
+        this.status_message='paper response falied'
+        return
+      }
+      const account= await response.json()
+      this.paper_account= account
+      this.status_message = 'Paper account loaded.'
     }
-    const accounts = await response.json()
-    if (Array.isArray(accounts)===false){
-      this.status_message='Invalid account response.'
-      return
-    }
-    if (accounts.length===0){
-      this.status_message= 'No accounts returned.'
-      return
-    }
-    if (accounts.length===1){
-      this.status_message= 'Both demo accounts are required.'
-      return
-
-    }
-    for(const account of accounts){
-      console.log(account.account_type)
-      if (account.account_type === 'paper'){this.paper_account = account}
-      if (account.account_type === 'live'){this.live_account = account}
-    }
-    this.status_message = 'demo data loaded, no broker connection'
-    }
-    catch{this.status_message= 'load failed'}
-  },
+    catch{this.status_message= 'paper account load failed'}
+  }
 
 
 },

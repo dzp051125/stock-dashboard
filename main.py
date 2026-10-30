@@ -1,11 +1,11 @@
 from fastapi import FastAPI, HTTPException
 import sqlite3
 from pydantic import BaseModel
-from datetime import datetime,timezone
 from dotenv import load_dotenv
 from openai import OpenAI
 import os
 import json
+from market_data import get_paper_account
 load_dotenv()
 deepseek_api_key= os.getenv('DEEPSEEK_API_KEY')
 app = FastAPI()
@@ -100,48 +100,7 @@ def create_account_summary(account_id:str):
     return{'summary':summary
     }
 
-@app.post('/accounts/{account_id}/notes')
-def create_notes(account_id: str,note: NoteCreate):
-    content= note.content.strip()
-    if not content:
-        raise HTTPException(status_code=400, detail= 'note cannot be empty')
-    current_time = datetime.now(timezone.utc)
-    create_at= current_time.isoformat()
-    connection = sqlite3.connect('data/dashboard.db')
-    try:
-        connection.execute('PRAGMA foreign_keys= ON')
-        account_query= connection.execute('SELECT account_id FROM accounts WHERE account_id= ?',
-                                          (account_id,))
-        account_row= account_query.fetchone()
-        if account_row is None:
-            raise HTTPException(status_code=404,detail='account cannot found')
-        insert_result= connection.execute(
-        "INSERT INTO notes(account_id, content, created_at) VALUES(?, ?, ?)",
-        (account_id,content,create_at)
-    )
-        connection.commit()
-        note_id = insert_result.lastrowid
-    finally: connection.close()
-    return note_id
 
-@app.get('/accounts/{account_id}/notes')
-def read_notes(account_id: str):
-    connection= sqlite3.connect('data/dashboard.db')
-    try:
-        note_query= connection.execute('SELECT account_id, content, created_at, id FROM notes WHERE account_id= ? ORDER BY created_at DESC',
-                                   (account_id,))
-        note_rows= note_query.fetchall()
-    finally:
-        connection.close()
-    records= []
-    for note_row in note_rows:
-        record= {}
-        record['account_id']= note_row[0]
-        record['content']= note_row[1]
-        record['created_at']= note_row[2]
-        record['id']= note_row[3]
-        records.append(record)
-    return records
 @app.put('/accounts/{account_id}/snapshots/{snapshot_id}/note')
 def updata_snapshot_note(account_id: str, snapshot_id: int, note: NoteCreate):
     content= note.content.strip()
@@ -176,42 +135,7 @@ def delete_snapshot_note(account_id: str, snapshot_id: int):
 
     return {'note': None}
 
-def save_snapshot(snapshot, holdings):
-    connection= sqlite3.connect('data/dashboard.db')
-    try:
-        connection.execute('PRAGMA foreign_keys= ON')
-        snapshot_query= connection.execute('SELECT snapshot_id, netvalue FROM snapshots WHERE account_id= ? and as_of=?',
-                                           (snapshot['account_id'], snapshot['as_of']))
-        snapshot_row= snapshot_query.fetchone()
-        if snapshot_row is not None:
-            if snapshot_row[1] != snapshot['netvalue']:
-                raise ValueError('snapshot netvalue conflicts with existing data')
-            holding_query= connection.execute('SELECT symbol, quantity FROM holdings WHERE snapshot_id= ?',
-                                              (snapshot_row[0],))
-            holding_rows= holding_query.fetchall()
-            existing_holdings= []
-            for holding_row in holding_rows:
-                existing_holdings.append({'symbol': holding_row[0],
-                                          'quantity': holding_row[1]})
-
-            if sorted(existing_holdings, key= lambda item:item['symbol']) != sorted( holdings, key= lambda item:item['symbol']):
-                raise ValueError('holdings conflicts with existing data')
-            return {'snapshot_id': snapshot_row[0],
-                    'status': 'existing'}
-
-
-        
-        save_query= connection.execute('INSERT INTO snapshots(account_id, as_of, received_at, netvalue)' \
-        'VALUES(?,?,?,?)',
-        (snapshot['account_id'], snapshot['as_of'], snapshot['received_at'], snapshot['netvalue']))
-        snapshot_id= save_query.lastrowid
-        for holding in holdings:
-            connection.execute('INSERT INTO holdings(snapshot_id, symbol, quantity)VALUES(?,?,?)',
-                               (snapshot_id, holding['symbol'], holding['quantity']))
-        connection.commit()
-            
-    finally:
-        connection.close()
-    return {'snapshot_id': snapshot_id,
-            'status': 'added success'}
+@app.get('/accounts/paper')
+async def read_paper():
+    return await get_paper_account()
 
