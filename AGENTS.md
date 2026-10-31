@@ -13,7 +13,7 @@
 
 - Explain every teaching step regardless of apparent importance: what it does, why it is needed, where it happens and the expected result. Match detail to the learner's actual understanding: explain why files or mechanisms exist and how they work; obvious names may be brief. Do not split related actions into repeated confirmations.
 
-- For unambiguous minor errors such as a missing comma or an inconsistent spelling, fix them directly, explain the change and continue teaching without a separate confirmation; preserve learner ownership of core logic.
+- Batch minor corrections and explain them together; the learner edits code unless explicitly requesting assistant edits. The learner chooses the order of meaningful steps; offer guidance and explain unfamiliar mechanisms without taking over.
 
 - At the start of each day's learning, provide the dashboard URL http://127.0.0.1:5173/, check frontend and backend availability, and help start missing services without duplicates. Starting the services does not itself invoke a model.
 
@@ -63,17 +63,17 @@
 - Record outcomes, assistance and verification separately. Never report a browser test when only a build or script check was performed.
 - About 40 minutes is a reference block, not an automatic stop. Respect the learner's request to wrap up and keep stage boundaries explicit.
 
-## End-of-session GitHub workflow
+## End-of-session records and learner Git workflow
 
-The learner has requested ongoing lesson-end uploads of code and learning records to an agreed GitHub repository.
+Latest instruction: the learner performs Git commits and pushes personally. Update local learning records, but do not stage, commit or push unless explicitly asked again.
 
 1. Check the saved source and perform verification appropriate to the actual change.
 2. Update `learning/STATUS.md`, including the next two or three study sessions.
 3. Append to `learning/daily/YYYY-MM-DD.md`, using the Shanghai end date; list actual start/end dates for sessions crossing midnight. Preserve earlier sessions in the same daily file.
 4. State who wrote the core code, what required hints, what remains uncertain and what checks were performed.
-5. Inspect the diff and candidate files, then commit and push to the agreed repository/branch using normal Git history. Never force-push or overwrite unrelated remote work.
-6. Report the actual push result and commit link. If the remote or authorization is missing, prepare the local content and state what is pending; do not claim an upload.
+5. Leave Git staging, committing and pushing to the learner. Offer file review and command guidance if requested.
+6. Report the saved learning stop and actual verification; do not claim an upload that was not performed.
 
-This is a workflow during an active lesson wrap-up, not a scheduled background job. The remote is https://github.com/dzp051125/stock-dashboard.git, branch main, visibility private. The learner delegated the first upload and authorized ordinary future lesson-end updates. Keep that destination and visibility unless the learner requests a change.
+This is a workflow during an active lesson wrap-up, not a scheduled background job. The remote is https://github.com/dzp051125/stock-dashboard.git, branch main, visibility private. The learner previously delegated uploads but has since withdrawn automatic commit/push authorization; local progress documentation remains part of wrap-up. Keep that destination and visibility unless the learner requests a change.
 
 Muse can review the repository through its own access. Preparing review notes does not authorize sending external messages or assuming Muse has read them.

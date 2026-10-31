@@ -58,14 +58,28 @@ async def get_paper_account():
         account_values= await ib.accountSummaryAsync()
         netvalue= None
         cash= None
+        buying_power= None
+        StockMarketValue= None
         for value in account_values:
             if value.currency== 'USD':
                 if value.tag== 'NetLiquidation':
                     netvalue= value.value
                 if value.tag== 'TotalCashValue':
                     cash= value.value
+                if value.tag=='BuyingPower':
+                    buying_power=value.value
+                if value.tag=='$LEDGER-StockMarketValue':
+                    stock_market_value=value.value
+
         if netvalue is None:
             raise ValueError('usd net liquidation not available')
+        pnl=ib.reqPnL(account_id)
+        async with asyncio.timeout(10):
+            await ib.pnlEvent
+            daily_pnl=pnl.dailyPnL
+            unrealized_pnl=pnl.unrealizedPnL
+            realized_pnl=pnl.realizedPnL
+
         return{
             'account_id': 'ibkr_paper',
             'name': 'IBKR Paper',
@@ -73,6 +87,11 @@ async def get_paper_account():
             'account_type': 'paper',
             'netvalue': netvalue,
             'cash': cash,
+            'daily_pnl':daily_pnl,
+            'unrealized_pnl':unrealized_pnl,
+            'realized_pnl':realized_pnl,
+            'buying_power': buying_power,
+            'LEDGER-StockMarketValue':stock_market_value,
             'currency': 'USD',
             'holding':holding
         }
