@@ -35,6 +35,13 @@ components :{
 },
 mounted(){
   this.load_paper()
+  this.refresh_time= window.setInterval(
+    this.load_paper,
+    30000
+  )
+},
+beforeUnmount(){
+   window.clearInterval(this.refresh_time)
 },
 computed :{
   current_account(){
@@ -47,19 +54,36 @@ computed :{
 methods:{
   
   async load_paper(){
-    this.status_message = 'loading  paper account'
+    if (this.is_loading) {
+  return
+}
+    this.is_loading = true
+    if(this.paper_account === null)
+    {this.status_message = '加载账户......'}
+    if(this.paper_account){
+      this.status_message= '正在刷新'
+    }
     try{
       const response= await fetch('/accounts/paper')
       if(response.ok===false){
-        this.status_message='paper response falied'
+        if(this.paper_account === null)
+        {this.status_message = 'Loading failed. Please check the connection.'}
+        if(this.paper_account){
+        this.status_message= 'Refresh failed. Showing previously loaded data.'
+       }
         return
       }
       const account= await response.json()
       this.paper_account= account
-      this.status_message = 'Paper account loaded.'
+      this.status_message = '账户数据将在30s后刷新'
     }
-    catch{this.status_message= 'paper account load failed'}
-  }
+    catch{if(this.paper_account === null)
+        {this.status_message = 'Loading failed. Please check the connection.'}
+        if(this.paper_account){
+        this.status_message= 'Refresh failed. Showing previously loaded data.'
+      }}
+    finally{this.is_loading= false}}
+    
 
 
 },
@@ -67,9 +91,11 @@ methods:{
 data(){
   return{
     select_account: 'paper',
-    status_message: 'Demo data only. No broker connection.',
+    status_message: 'Waiting to load account data.',
     paper_account: null,
-    live_account: null
+    live_account: null,
+    is_loading: false,
+    refresh_time: null
   }
 
 }
