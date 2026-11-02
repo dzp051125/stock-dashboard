@@ -14,6 +14,7 @@
 - Explain every teaching step regardless of apparent importance: what it does, why it is needed, where it happens and the expected result. Match detail to the learner's actual understanding: explain why files or mechanisms exist and how they work; obvious names may be brief. Do not split related actions into repeated confirmations.
 
 - Batch minor corrections and explain them together; the learner edits code unless explicitly requesting assistant edits. The learner chooses the order of meaningful steps; offer guidance and explain unfamiliar mechanisms without taking over.
+- Present related improvement options together so the learner can choose and implement them. Explain unfamiliar mechanisms. In a learner-authored task, requests to supplement or explain all changes are not authorization to edit code; only an explicit request to edit files or write code for the learner permits that.
 
 - At the start of each day's learning, provide the dashboard URL http://127.0.0.1:5173/, check frontend and backend availability, and help start missing services without duplicates. Starting the services does not itself invoke a model.
 
