@@ -5,10 +5,26 @@ from dotenv import load_dotenv
 from openai import OpenAI
 import os
 import json
-from market_data import get_paper_account
+from market_data import get_stock_quote
+from account_cache import paper_cache,run_paper_refresh_loop
+from contextlib import asynccontextmanager
+import asyncio
 load_dotenv()
 deepseek_api_key= os.getenv('DEEPSEEK_API_KEY')
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app:FastAPI):
+    refresh_task= asyncio.create_task(run_paper_refresh_loop())
+    try:
+        yield
+    finally:
+        refresh_task.cancel()
+        try:
+            await refresh_task
+        except asyncio.CancelledError:
+            pass
+
+app = FastAPI(lifespan=lifespan)
+    
 class NoteCreate(BaseModel):
     content: str
 def generate_account_summary(accounts):
@@ -88,11 +104,6 @@ def read_snapshots(account_id: str):
         record['note']= row[4]
         records.append(record)
     return records
-@app.get('/accounts')
-def read_live_account():
-    paper_account = read_account('demo_paper')
-    live_account = read_account('demo_live')
-    return [paper_account, live_account]
 @app.post('/accounts/{account_id}/account-summary')
 def create_account_summary(account_id:str):
     accounts= read_account(account_id)
@@ -137,5 +148,23 @@ def delete_snapshot_note(account_id: str, snapshot_id: int):
 
 @app.get('/accounts/paper')
 async def read_paper():
-    return await get_paper_account()
+    return paper_cache
+@app.get('/stock/{symbol}/search')
+async def search_stock(symbol:str):
+    try:return await get_stock_quote(symbol)
+    except ValueError:
+        raise HTTPException(
+            status_code=404,
+            detail='未找到匹配的股票,请检查代码'
+        )
+    except ConnectionError:
+        raise HTTPException(
+            status_code=503,
+            detail='无法连接ib,请检查登录和端口'
+        )
+    except TimeoutError:
+        raise HTTPException(
+            status_code=504,
+            detail='查询超时,请稍后重试并检查连接和行情权限'
+        )
 

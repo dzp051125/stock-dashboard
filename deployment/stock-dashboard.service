@@ -1,0 +1,25 @@
+[Unit]
+Description=Private stock dashboard API and account cache
+After=network-online.target ibgateway-login.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=stock-dashboard
+Group=stock-dashboard
+WorkingDirectory=/opt/stock-dashboard/current
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/stock-dashboard/.venv/bin/python -m uvicorn main:app --host 127.0.0.1 --port 8001 --workers 1 --loop asyncio --no-access-log
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=25
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+MemoryMax=384M
+TasksMax=64
+
+[Install]
+WantedBy=multi-user.target

@@ -5,7 +5,9 @@ export default defineConfig({
   plugins: [vue()],
   server: {
     proxy: {
-      '/accounts': 'http://127.0.0.1:8001'
+      '/accounts': 'http://127.0.0.1:8001',
+      '/stock':
+      'http://127.0.0.1:8001'
     }
   }
 })
