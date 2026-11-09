@@ -27,6 +27,9 @@ app = FastAPI(lifespan=lifespan)
     
 class NoteCreate(BaseModel):
     content: str
+class login_request(BaseModel):
+    account_id:str
+    password:str
 def generate_account_summary(accounts):
     if not deepseek_api_key:
         raise ValueError('deepseek_api_key is missing')
@@ -167,4 +170,13 @@ async def search_stock(symbol:str):
             status_code=504,
             detail='查询超时,请稍后重试并检查连接和行情权限'
         )
+
+@app.post('/accounts/login')
+def login_account(login: login_request):
+    raise HTTPException(
+        status_code= 501,
+        detail=''
+    )
+
+
 

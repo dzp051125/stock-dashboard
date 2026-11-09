@@ -1,3 +1,7 @@
+> 2026-11-08 当前生效状态：用户重新明确授权教师完成HTTPS，已恢复下文443共享入口方案，https://dzp1125.me/可用并有密码保护，HTTP跳转HTTPS；nginx-http/https/stream.conf与生效配置一致。备份/root/dashboard-https-backup-20261108。外部证书、认证访问、原代理及证书续期演练通过。Gateway仍inactive，旧缓存不可当实时数据。下面11-07撤销说明仅保留为历史。
+
+> 2026-11-07 最新状态：用户为亲手学习配置，已明确要求并完成撤销下文HTTPS部署。当前域名HTTP测试页200，Xray恢复公网443；网站TLS8443和分流已撤销。内部18080认证看板/8001后端、证书及续期机制保留。下文同日HTTPS部署说明与nginx-http/https/stream.conf是参考历史，不是当前生效配置，勿自动重新部署。下一步由学生SSH连接并逐步操作。
+
 # VPS 部署停点（2026-11-03）
 
 ## 当前已运行
@@ -47,3 +51,39 @@ nginx -t
 - 阿里云权威 DNS 已返回根域名 A 记录；公共解析仍 NXDOMAIN，注册状态 clientHold。用户确认域名尚未实名，模板实名已通过；待域名认证与解除暂停后复查。
 - nginx 配置校验通过；公网 IP 页面及绕过 DNS 的域名路由均 HTTP 200。没有真实手机验收证据。
 - 仓库 mobile-check.html 与 deploy-mobile-check.py 保存本次页面和部署脚本；脚本在目标已存在时退出，重新部署前应先审阅现有内容。该页独立于私有看板。
+
+## 2026-11-07：正式 HTTPS 入口（当前部署）
+
+入口：https://dzp1125.me/，保留已有Basic Auth。HTTP自动跳转HTTPS，证书验证路径除外。
+
+```
+Public :443 (nginx stream)
+  SNI dzp1125.me -> 127.0.0.1:8443 TLS -> 127.0.0.1:18080 auth -> static frontend / 8001 API
+  default       -> 127.0.0.1:24443 Xray REALITY
+```
+
+部署文件对应：
+- nginx-http.conf -> /etc/nginx/conf.d/dzp1125-mobile-check.conf
+- nginx-https.conf -> /etc/nginx/conf.d/dashboard-https.conf
+- nginx-stream.conf -> /etc/nginx/stream-conf.d/dashboard-routing.conf
+- nginx.conf（原模板）仍为18080内部认证服务配置。
+
+已安装libnginx-mod-stream，模块自动加载。主/etc/nginx/nginx.conf在http块外增加：
+
+```nginx
+stream {
+    include /etc/nginx/stream-conf.d/*.conf;
+}
+```
+
+不要把stream配置放进http下的conf.d。Xray原443入站已改listen=127.0.0.1、port=24443，其他认证/REALITY设置保留；客户端仍连接原公网443。未来更新Xray配置不要覆盖这个监听地址。
+
+证书由certbot webroot申请，路径/etc/letsencrypt/live/dzp1125.me/；ACME验证根目录/var/www/letsencrypt。证书到期2027-02-04。certbot.timer定时检查续期，/etc/letsencrypt/renewal-hooks/deploy/reload-nginx在成功续期后先nginx -t再reload。无需开放公网8443/24443/18080/8001。
+
+验证：外部HTTPS401/HTTP301；认证首页及账户缓存200；禁止路径404；真实代理客户端公网443访问外网200；certbot renew --dry-run --no-random-sleep-on-renew成功。部署钩子单独执行通过（此服务器Certbot不支持--run-deploy-hooks）。
+
+备份：/root/dashboard-https-backup-20261107；rollback.sh会停止nginx、恢复切换前配置与Xray443并重新启动。切换期间的自动回滚timer已取消，手动回滚前需确认没有后续配置变更。证书和已安装软件不随此脚本删除。
+
+当前分流未传递原客户端IP，内部访问日志/原按IP限流看到本机来源，股票查询限流实际为共享额度。当前小型私人使用保留此限制；如需多用户限流或真实客户端审计，再明确设计可信来源传递，不直接信任外部X-Forwarded-For。
+
+Gateway仍inactive；账户接口有旧缓存和错误状态。未恢复券商登录；网站HTTPS可用不意味着行情采集恢复。用户手机验收待完成。密码/证书私钥/数据库不入仓库。
