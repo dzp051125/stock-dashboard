@@ -6,7 +6,7 @@
 - The complete final reading artifact is `learning/FINAL_PLAN.md`; source sections remain PLAN/TEACHING_RULES/STATUS. Read `learning/STATUS.md` before teaching. Use `learning/PLAN.md` for the route and the latest daily report for recent evidence.
 - The v2.2 curriculum integrates the learner's requirements and external reviews. Read `learning/REBUILD_BRIEF.md`, `learning/FINAL_REVIEW_DECISIONS.md` and the current seven-chapter `learning/PLAN.md`; detailed teaching rules are in `learning/TEACHING_RULES.md`. The latest teaching review decisions are `learning/TEACHING_REVIEW_DECISIONS_2026-10-24.md`; start from `ARCHITECTURE.md` for the whole-product map. Preserve existing implementation evidence rather than restarting the completed demo chain.
 - The learner has directly confirmed AI application full-stack as the priority, preparation for internship applications around October 2027, planned study of roughly ten-plus hours weekly and a public fictional demo alongside an isolated private version. These are planning inputs, not guarantees of focused time, internship eligibility or an offer; no deployment has occurred.
-- Application identifiers, comments and UI strings are English. Teaching and learning documents may be Chinese.
+- Application identifiers remain English. User-facing UI and success/error messages may be Chinese as preferred by the learner (confirmed 2026-11-11). Teaching and learning documents may be Chinese.
 - Use fictional data. Keep credentials, real account exports, databases, backups and dependencies out of Git.
 
 ## Teaching

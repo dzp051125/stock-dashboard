@@ -9,8 +9,12 @@ from market_data import get_stock_quote
 from account_cache import paper_cache,run_paper_refresh_loop
 from contextlib import asynccontextmanager
 import asyncio
+from pwdlib import PasswordHash
 load_dotenv()
 deepseek_api_key= os.getenv('DEEPSEEK_API_KEY')
+password_hasher= PasswordHash.recommended()
+saved_username= os.getenv('DASHBOARD_USERNAME')
+saved_password_hash = os.getenv('DASHBOARD_PASSWORD_HASH')
 @asynccontextmanager
 async def lifespan(app:FastAPI):
     refresh_task= asyncio.create_task(run_paper_refresh_loop())
@@ -173,10 +177,19 @@ async def search_stock(symbol:str):
 
 @app.post('/accounts/login')
 def login_account(login: login_request):
-    raise HTTPException(
-        status_code= 501,
-        detail=''
-    )
+   username_matches= login.account_id== saved_username
+   password_matches=  password_hasher.verify(
+       login.password,
+       saved_password_hash
+   )
+   if username_matches and password_matches:
+       return{'message': '验证通过'}
 
+   else: 
+       raise HTTPException(
+           status_code=401,
+           detail='账号或密码错误'
+       )
+  
 
 
