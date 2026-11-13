@@ -10,11 +10,14 @@ from account_cache import paper_cache,run_paper_refresh_loop
 from contextlib import asynccontextmanager
 import asyncio
 from pwdlib import PasswordHash
+from secrets import token_urlsafe
+from fastapi import FastAPI, HTTPException, Response, Request
 load_dotenv()
 deepseek_api_key= os.getenv('DEEPSEEK_API_KEY')
 password_hasher= PasswordHash.recommended()
 saved_username= os.getenv('DASHBOARD_USERNAME')
 saved_password_hash = os.getenv('DASHBOARD_PASSWORD_HASH')
+session_store= {}
 @asynccontextmanager
 async def lifespan(app:FastAPI):
     refresh_task= asyncio.create_task(run_paper_refresh_loop())
@@ -154,7 +157,8 @@ def delete_snapshot_note(account_id: str, snapshot_id: int):
     return {'note': None}
 
 @app.get('/accounts/paper')
-async def read_paper():
+async def read_paper(request: Request):
+    get_current_account(request)
     return paper_cache
 @app.get('/stock/{symbol}/search')
 async def search_stock(symbol:str):
@@ -176,13 +180,21 @@ async def search_stock(symbol:str):
         )
 
 @app.post('/accounts/login')
-def login_account(login: login_request):
+def login_account(login: login_request,response: Response  ):
    username_matches= login.account_id== saved_username
    password_matches=  password_hasher.verify(
        login.password,
        saved_password_hash
    )
    if username_matches and password_matches:
+       session_id= token_urlsafe(32)
+       session_store[session_id]= login.account_id
+       response.set_cookie(
+           key='session_id',
+           value=session_id,
+           httponly=True,
+           samesite='lax'
+       )
        return{'message': '验证通过'}
 
    else: 
@@ -190,6 +202,14 @@ def login_account(login: login_request):
            status_code=401,
            detail='账号或密码错误'
        )
-  
-
+@app.get('/accounts/me')
+def get_current_account(request: Request):
+    session_id= request.cookies.get('session_id')
+    if not session_id or session_id not in session_store:
+        raise HTTPException(
+            status_code=401,
+            detail='未登录'
+        )
+    account_id= session_store[session_id]
+    return {'account_id': account_id}
 

@@ -1,4 +1,9 @@
 <template>
+  <p>{{ auth_message }}</p>
+  <loginForm v-if="is_login=== false" 
+              @login-success="handle_login_success"
+              ></loginForm>
+  <div v-else>
   <button @click="load_paper()">refresh</button>
   <AccountSelector  @select-paper="select_account = 'paper'"
                     @select-live="select_account = 'live'"></AccountSelector>
@@ -17,6 +22,7 @@
 
   <p v-if="!paper_account && !live_account">No account data loaded.</p>
   <StatusMessage :message="status_message"></StatusMessage>
+  </div>
 </template>
 <script>
 import DashboardHeader from './DashboardHeader.vue';
@@ -26,6 +32,7 @@ import HoldingsList from './HoldingsList.vue';
 import StatusMessage from './StatusMessage.vue';
 import AccountHistory from './AccountHistory.vue';
 import StockSearch from './StockSearch.vue';
+import loginForm from './LoginForm.vue';
 export default{
 components :{
   DashboardHeader: DashboardHeader,
@@ -34,14 +41,11 @@ components :{
   HoldingsList: HoldingsList,
   StatusMessage: StatusMessage,
   AccountHistory: AccountHistory,
-  StockSearch:StockSearch
+  StockSearch:StockSearch,
+  loginForm:loginForm
 },
 mounted(){
-  this.load_paper()
-  this.refresh_time= window.setInterval(
-    this.load_paper,
-    1000
-  )
+  this.check_login()
 },
 beforeUnmount(){
    window.clearInterval(this.refresh_time)
@@ -55,6 +59,31 @@ computed :{
   }
 },
 methods:{
+  handle_login_success(){
+    this.is_login= true
+    this.load_paper()
+  this.refresh_time= window.setInterval(
+    this.load_paper,
+    1000)
+
+  },
+async check_login(){
+    try{
+      const response= await fetch('/accounts/me',{cache:'no-store'})
+      if(response.status=== 401){
+        this.is_login= false
+        return
+      }
+      if(response.ok=== false){
+        this.auth_message= '无法验证登录状态，请检查连接'
+        return
+      }
+      this.handle_login_success()
+    }catch{
+      this.auth_message= '无法验证登录状态，请检查连接'
+      this.is_login= false
+    }
+  },
   
   async load_paper() {
     if (this.is_loading) {
@@ -112,7 +141,9 @@ data(){
     paper_account: null,
     live_account: null,
     is_loading: false,
-    refresh_time: null
+    refresh_time: null,
+    is_login: false,
+    auth_message: ''
   }
 
 }
