@@ -1,5 +1,41 @@
 # 当前学习状态与滚动安排
 
+### 2026-11-17 最新停点：数据库路径可配置，学生准备 VPS 持久目录
+
+- 本课从11-16延续至11-17，有效学习时间未统计。学生完成 database_path = os.getenv('DATABASE_PATH', 'data/dashboard.db')，main.py全部7处连接使用该变量；静态语法与引用检查通过。本地默认路径不变，未迁移数据库。
+- 教师只读实查VPS：网站/nginx运行，仍为11-03旧版本；无新登录接口、用户名/密码哈希配置、pwdlib/argon2依赖及数据库目录。公网仍Basic Auth，/accounts/me为404。Gateway服务inactive、4002未监听；缓存有旧账户且更新报错。未部署或重启。
+- 用户改为亲手操作VPS。已贴终端输出确认：/var/lib/stock-dashboard存在且属于stock-dashboard用户/组；systemctl edit首次因有效内容为空取消，重新在有效区域填写[Service]与ReadWritePaths后，用户报告systemctl show显示目标路径。后者尚未由教师远程复核，运行中的服务未重启，不声称新写入许可已实际应用。
+- 精确停点：已讲解创建/etc/stock-dashboard目录、编辑dashboard.env并填写DATABASE_PATH=/var/lib/stock-dashboard/dashboard.db；用户随后结课，未提交执行结果，不能认定配置文件已经创建。网站用户名/密码哈希尚未决定复用或更换，EnvironmentFile尚未接入服务。
+- 下次先检查上述配置文件是否存在及DATABASE_PATH一项（不要输出其他凭据）；再由用户选择账号，准备私有登录配置并讲解服务如何加载。之后安装新增依赖、配置生产Secure Cookie、按明确授权更新代码和精确放行登录接口，验收后切换旧Basic Auth。Gateway恢复另行对齐，不自动重启或登录。
+- 未来两三次目标：①完成配置与数据库存放位置；②连接线上新登录并验收正常登录/再次访问/重启保持，旧敏感接口继续关闭；③由用户决定恢复Gateway与账户展示。退出按钮、低频界面状态及细分异常仍后置。
+- 核心代码与VPS命令由学生按讲解操作；教师负责只读核对、解释与记录。用户本次明确要求上传GitHub，仅提交审阅过的代码及学习文档；密码、密钥、数据库、本机杂项不入库，上传结果以实际Git记录为准。
+
+### 2026-11-16 最新停点：主要错误提示已调整，细分异常后置
+
+- 学生明确当前重点是提示能帮助定位问题，而不是补齐所有低频状态。已自行修改App.vue的load_paper：先401，再500，再其他HTTP失败显示状态码；保留Gateway更新/缓存提示，不自动切回登录页。
+- LoginForm已显示请求中提示，401提示账号密码错误，其他HTTP失败显示状态码，去掉通用失败分支的强制JSON解析，加入try/catch。handle_login_success清空auth_message；check_login的401提示请先登录、其他HTTP失败显示状态码、异常提示检查连接。教师未修改业务代码。
+- 验证：上述组件改动期间pnpm build通过；最后两句提示修改已重读静态确认。未实际浏览器验收。30天数据库会话和Cookie仍仅有此前隔离测试证据，未部署。
+- 用户明确后置load_paper中网络异常与JSON解析异常的细分；不要继续安排这项，也不追补退出按钮、持续打开页面到期自动跳回等已后置工作。主要提示本轮收尾，后续候选是核对VPS当前入口/代码与本地版本的衔接、完成正常登录与账户展示主流程；先对齐分工，未授权本次部署或代写业务代码。
+
+### 2026-11-16 后续更新：30天持久会话核心代码完成，优先接通主要使用流程
+
+- 学生已完成login_account的SQLite INSERT/commit/finally，get_current_account按session_id查库、fetchone取用户名和期限、使用<=判断到期，删除旧session_store；set_cookie已加max_age=session_duration_secondes。教师未代写业务代码。
+- 隔离执行实际函数、临时数据库验证：登录写入与30天期限、有效凭证、过期/到期瞬间/不存在/无Cookie分支通过；重新创建函数环境可读取先前会话。响应Cookie的Max-Age=2592000、HttpOnly、SameSite=lax、Path=/检查通过。不是浏览器真实重启端到端验收。用户决定完整验证留待全部接通、上线切换前进行。
+- 现有App.vue：check_login已区分401和其他失败；load_paper把401混在普通失败内。LoginForm仍缺请求中/网络异常等反馈。只是已观察缺口，非全部立即要做。
+- 用户纠正优先级：退出按钮、网页持续开到30天过期时自动退回等低频体验后置；先主要流程与整体接通。教师此前罗列缺口并优先要求修低频状态导致负担，应停止该支线。下一步先对齐正常打开/登录/再次访问/账户显示的主要流程与VPS接通，不能自动恢复已被后置的任务或擅自部署。
+
+### 2026-11-16 最新停点：30天登录持久化，已建表并计算期限，待写入数据库
+
+- 本段覆盖下方11-13停点；课段从11-15延续至11-16，有效投入未统计。用户近期忙，主动结束，不安排赶课或重学。
+- 用户确认：每次登录固定有效30天，关闭浏览器、后端重启仍保持登录。普通访问不续期。沿用SQLite持久化会话；尚未完成该功能。
+- 学生按讲解编写 initialize_session_table，并在lifespan创建刷新任务之前调用；sessions表实际已创建，字段为session_id TEXT PRIMARY KEY、account_id TEXT NOT NULL、expires_at INTEGER NOT NULL。此表account_id表示网站用户名，不是券商账号；沿用学生实际名称，不再要求仅为命名改表。
+- 学生已导入time，定义session_duration_secondes = 30 * 24 * 60 * 60，在login_account成功分支计算expires_at = int(time.time()) + session_duration_secondes。拼写虽非标准但引用一致；顶部单独的int(time.time())未接收结果，无实际用途，下次顺手解释并由学生删除，不单独拆一课。
+- 登录仍写旧session_store字典，验证仍查该字典；尚无sessions INSERT、数据库查验/过期比较、Cookie max_age、退出或前端401收尾。不要声称重启保持登录已完成。保留旧字典直到读写链路都切换后再删除。
+- 验证：学生曾将connection.commit()放进三引号SQL，临时内存库复现语法错误；修改后隔离建表通过，教师启动本地后端，实际数据库确认sessions三列且0行。收尾main.py AST语法通过；未完整登录测试、未部署VPS。Mac Gateway连接拒绝，与本次认证任务分开。
+- 理解证据：用户提出“当前时间加30天”，并主动梳理“保存数据库→验证和比较”。已讲函数定义/调用、lifespan启动顺序、三引号多行字符串与Python/SQL边界、时间戳和秒单位。核心代码学生按讲解编写，不计独立掌握。
+- 下次直接继续：先确认服务与网页 http://127.0.0.1:5173/；学生尝试在login_account成功分支INSERT三项并commit/finally关闭连接，提交成功后再发Cookie；然后改get_current_account查库和比较时间，最后讲set_cookie的max_age及前端401。新增机制先讲，熟悉SQL先给提示。未来两三课候选：①登录记录写入/读取及过期；②Cookie持久期限、退出与失效页面；③完整认证与重启验证，再讨论VPS入口切换。每个重要步骤后给用户选择空间。
+- 本次只更新本地记录，未修改业务代码、未暂存/提交/推送。后续Git仍由用户操作，除非另行明确委托。
+
 ### 2026-11-13 最新停点：Mac 首课，Cookie 登录链路已编写，时效与退出待决定
 
 - 本段覆盖下方历史停点。项目现位于 /Users/a1125/Documents/Codex/Projects/stock-dashboard；前端 pnpm、Python .venv/bin/python。本地网页 http://127.0.0.1:5173/，后端8001；本课已启动并检查服务，不保证下次仍在运行。Gateway未在Mac运行，账户数据更新与登录测试是不同链路。

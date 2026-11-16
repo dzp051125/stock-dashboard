@@ -21,17 +21,26 @@ async verify_account(account_id, password){
         password: password,
         
     }
+    try{
+    this.status_message= '正在验证账号信息，请稍后...'
     const respone= await fetch('/accounts/login' ,
     {method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify(login_data)}
         )
-    if(respone.ok===false){
-        const error= await respone.json()
-        this.status_message= error.detail
+    if(respone.status=== 401){
+        this.status_message= '账号或者密码错误，请重新登录'
         return
     }
-    this.$emit('login-success')
+    if(respone.ok===false){
+        this.status_message= '无法验证账号信息,状态码: '+ respone.status    
+        return
+    }
+    this.$emit('login-success')}
+    catch{
+        this.status_message= '无法验证账号信息，请检查连接'
+    }
+
     
 }
 

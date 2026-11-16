@@ -61,6 +61,7 @@ computed :{
 methods:{
   handle_login_success(){
     this.is_login= true
+    this.auth_message= ''
     this.load_paper()
   this.refresh_time= window.setInterval(
     this.load_paper,
@@ -72,10 +73,11 @@ async check_login(){
       const response= await fetch('/accounts/me',{cache:'no-store'})
       if(response.status=== 401){
         this.is_login= false
+        this.auth_message= '请先登录'
         return
       }
       if(response.ok=== false){
-        this.auth_message= '无法验证登录状态，请检查连接'
+        this.auth_message= '登录状态检查  失败，状态码: '+ response.status
         return
       }
       this.handle_login_success()
@@ -95,12 +97,20 @@ async check_login(){
     }
     try {
       const response = await fetch('/accounts/paper', { cache: 'no-store' })
-      if (response.ok === false) {
-        this.status_message = this.paper_account
-          ? '无法读取后台缓存，暂时显示上次数据。'
-          : '无法读取后台缓存，请检查连接或登录状态。'
+      if(response.status === 401){
+        this.status_message= '登陆验证失败，请重新登录'
         return
       }
+      if(response.status=== 500){
+        this.status_message= '后台服务器错误，请稍后再试'
+        return
+      }
+      if(response.ok=== false){
+        this.status_message= '账户数据读取失败，状态码: '+ response.status
+        return
+      }
+      
+
       const data = await response.json()
       if (!data || typeof data !== 'object' || !('account' in data)) {
         this.status_message = '后台返回的数据格式不正确。'

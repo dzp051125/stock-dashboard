@@ -12,14 +12,30 @@ import asyncio
 from pwdlib import PasswordHash
 from secrets import token_urlsafe
 from fastapi import FastAPI, HTTPException, Response, Request
+import time
+session_duration_secondes= 30* 24*60*60
 load_dotenv()
 deepseek_api_key= os.getenv('DEEPSEEK_API_KEY')
 password_hasher= PasswordHash.recommended()
 saved_username= os.getenv('DASHBOARD_USERNAME')
 saved_password_hash = os.getenv('DASHBOARD_PASSWORD_HASH')
-session_store= {}
+database_path= os.getenv('DATABASE_PATH','data/dashboard.db')
+def initialize_session_table():
+    connection = sqlite3.connect(database_path)
+    try:
+        connection.execute('''
+            CREATE TABLE IF NOT EXISTS sessions (
+                session_id TEXT PRIMARY KEY,
+                account_id TEXT NOT NULL,
+                expires_at INTEGER NOT NULL
+            )
+        ''')
+        connection.commit()
+    finally:
+        connection.close()
 @asynccontextmanager
 async def lifespan(app:FastAPI):
+    initialize_session_table()
     refresh_task= asyncio.create_task(run_paper_refresh_loop())
     try:
         yield
@@ -61,7 +77,7 @@ def generate_account_summary(accounts):
     )
     return response.choices[0].message.content
 def read_account(account_id):
-    connection = sqlite3.connect('data/dashboard.db')
+    connection = sqlite3.connect(database_path)
     try:
         query_result = connection.execute('SELECT account_id, account_type, name, base_currency,source FROM accounts WHERE account_id =?',
                                           (account_id,))
@@ -97,7 +113,7 @@ def read_account(account_id):
     return records
 @app.get('/accounts/{account_id}/snapshots')
 def read_snapshots(account_id: str):
-    connection = sqlite3.connect('data/dashboard.db')
+    connection = sqlite3.connect(database_path)
     try:
         snapshot_query = connection.execute('SELECT account_id, as_of, netvalue, snapshot_id ,note FROM snapshots WHERE account_id = ? ORDER BY as_of ASC',
                                             (account_id,))
@@ -127,7 +143,7 @@ def updata_snapshot_note(account_id: str, snapshot_id: int, note: NoteCreate):
     content= note.content.strip()
     if not content:
         raise HTTPException(status_code=400, detail='note cannot be empty')
-    connection= sqlite3.connect('data/dashboard.db')
+    connection= sqlite3.connect(database_path)
     try:
         update_result= connection.execute('UPDATE snapshots SET note = ? WHERE account_id = ? AND snapshot_id= ?',
                                           (content, account_id, snapshot_id))
@@ -141,7 +157,7 @@ def updata_snapshot_note(account_id: str, snapshot_id: int, note: NoteCreate):
 
 @app.delete('/accounts/{account_id}/snapshots/{snapshot_id}/note')
 def delete_snapshot_note(account_id: str, snapshot_id: int):
-    connection = sqlite3.connect('data/dashboard.db')
+    connection = sqlite3.connect(database_path)
     try:
         delete_result = connection.execute(
             'UPDATE snapshots SET note = NULL WHERE account_id = ? AND snapshot_id = ?',
@@ -188,12 +204,22 @@ def login_account(login: login_request,response: Response  ):
    )
    if username_matches and password_matches:
        session_id= token_urlsafe(32)
-       session_store[session_id]= login.account_id
+       expires_at= int(time.time())+ session_duration_secondes
+       connection= sqlite3.connect(database_path)
+       try:
+           connection.execute(
+               'INSERT INTO sessions(session_id, account_id, expires_at) VALUES(?,?,?)',
+               (session_id, login.account_id, expires_at)
+           )
+           connection.commit()
+       finally:
+           connection.close()
        response.set_cookie(
            key='session_id',
            value=session_id,
            httponly=True,
-           samesite='lax'
+           samesite='lax',
+           max_age= session_duration_secondes
        )
        return{'message': '验证通过'}
 
@@ -205,11 +231,17 @@ def login_account(login: login_request,response: Response  ):
 @app.get('/accounts/me')
 def get_current_account(request: Request):
     session_id= request.cookies.get('session_id')
-    if not session_id or session_id not in session_store:
-        raise HTTPException(
-            status_code=401,
-            detail='未登录'
-        )
-    account_id= session_store[session_id]
+    connection= sqlite3.connect(database_path)
+    try:
+        session_query=connection.execute('SELECT account_id ,expires_at FROM sessions WHERE session_id = ?', (session_id,))
+        row= session_query.fetchone()
+        if not row:
+            raise HTTPException(status_code=401, detail='未登录')
+        elif row[1]<= int(time.time()):
+            raise HTTPException(status_code=401, detail='登录已过期')
+        else:
+            account_id= row[0]
+    finally:
+        connection.close()
     return {'account_id': account_id}
 
