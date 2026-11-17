@@ -20,6 +20,7 @@ password_hasher= PasswordHash.recommended()
 saved_username= os.getenv('DASHBOARD_USERNAME')
 saved_password_hash = os.getenv('DASHBOARD_PASSWORD_HASH')
 database_path= os.getenv('DATABASE_PATH','data/dashboard.db')
+cookie_secure= os.getenv('COOKIE_SECURE','false')=='true'
 def initialize_session_table():
     connection = sqlite3.connect(database_path)
     try:
@@ -219,7 +220,8 @@ def login_account(login: login_request,response: Response  ):
            value=session_id,
            httponly=True,
            samesite='lax',
-           max_age= session_duration_secondes
+           max_age= session_duration_secondes,
+           secure=cookie_secure
        )
        return{'message': '验证通过'}
 

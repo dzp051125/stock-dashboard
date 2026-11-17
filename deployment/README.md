@@ -1,3 +1,7 @@
+> 2026-11-18 接续：用户报告手机登录及再次访问保持登录成功；用户提供的Muse报告称Gateway模拟盘已恢复、只读API及后端更新正常，本次Codex未独立复测。重新登录的持续凭据方案仍未解决；下方“未恢复Gateway”仅描述此前发布时的状态。
+
+> 2026-11-17 当前状态：学生发布新版至 /opt/stock-dashboard/releases/20261117-login，current已切换；后端读取 /etc/stock-dashboard/dashboard.env，数据库 /var/lib/stock-dashboard/dashboard.db，systemd配置 EnvironmentFile/ReadWritePaths。登录Cookie开启Secure。用户报告新登录验证完成后，教师按明确授权移除旧Nginx Basic Auth；HTTPS首页200，无Cookie的账户/登录状态接口401，无效登录401，旧历史/docs接口404。登录限流6r/m、burst=5、429，目前内部代理导致共享额度。Nginx备份 /root/stock-dashboard-before-basic-removal-20261117-225140.conf.bak。没有恢复Gateway；未验收线上重启后保持登录。下方旧Basic Auth描述保留为历史，不再是当前方案。
+
 > 2026-11-08 当前生效状态：用户重新明确授权教师完成HTTPS，已恢复下文443共享入口方案，https://dzp1125.me/可用并有密码保护，HTTP跳转HTTPS；nginx-http/https/stream.conf与生效配置一致。备份/root/dashboard-https-backup-20261108。外部证书、认证访问、原代理及证书续期演练通过。Gateway仍inactive，旧缓存不可当实时数据。下面11-07撤销说明仅保留为历史。
 
 > 2026-11-07 最新状态：用户为亲手学习配置，已明确要求并完成撤销下文HTTPS部署。当前域名HTTP测试页200，Xray恢复公网443；网站TLS8443和分流已撤销。内部18080认证看板/8001后端、证书及续期机制保留。下文同日HTTPS部署说明与nginx-http/https/stream.conf是参考历史，不是当前生效配置，勿自动重新部署。下一步由学生SSH连接并逐步操作。
