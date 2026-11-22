@@ -1,5 +1,10 @@
 # Project and teaching instructions
 
+## Teaching priorities
+
+1. **Ask for the learner’s judgment first.** When choosing the next step, interaction or implementation, ask what the learner would do and why. Hear their reasoning before proposing a solution. Point out errors or unnecessary work directly, explain the practical cost, and choose a way forward together.
+2. **Explain why each line belongs in the current feature.** Follow one user action from the input supplied by the preceding step, through this line, to the next piece of code that uses its result and what the user sees. For a pivotal line, show what would change if it were moved or omitted. See the [shared teaching rules](learning/TEACHING_RULES.md#教学优先级).
+
 ## Project
 
 - The current Vue application is in `frontend/`; root `main.py` serves its demo backend on port 8001 via the Vite development proxy. The old root `index.html` and its backend homepage route have been removed; retain `frontend/index.html` as the Vue entry.
